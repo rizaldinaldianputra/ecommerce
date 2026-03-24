@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: #ec4899;
+  --color-primary-foreground: #fafafa;
+
+  --color-secondary: #f4f4f5;
+  --color-secondary-foreground: #18181b;
+
+  --color-muted: #f4f4f5;
+  --color-muted-foreground: #71717a;
+
+  --color-accent: #f4f4f5;
+  --color-accent-foreground: #18181b;
+
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #fafafa;
+
+  --color-border: #e4e4e7;
+  --color-input: #e4e4e7;
+  --color-ring: #ec4899;
+
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
+
+  --color-primary-gradient: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #09090b;
+  color-scheme: light;
+}
+
+.dark {
+  --background: #020617;
+  --foreground: #f8fafc;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}

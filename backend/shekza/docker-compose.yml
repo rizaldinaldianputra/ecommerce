@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: shekza-postgres
+    environment:
+      POSTGRES_USER: shekza_user
+      POSTGRES_PASSWORD: shekza_password
+      POSTGRES_DB: shekza_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    networks:
+      - shekza-network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: shekza-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - shekza-network
+
+  # MinIO
+  minio:
+    image: minio/minio
+    container_name: shekza-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - shekza-network
+
+  # Elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.1
+    container_name: shekza-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    networks:
+      - shekza-network
+
+  # Keycloak
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.4
+    container_name: shekza-keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_DATABASE: shekza_db
+      KC_DB_USERNAME: shekza_user
+      KC_DB_PASSWORD: shekza_password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - shekza-network
+
+  # Spring Boot Backend (Optional to run here, or run locally)
+  # backend:
+  #   build: .
+  #   container_name: shekza-backend
+  #   ports:
+  #     - "8081:8081"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #     - minio
+  #     - elasticsearch
+  #     - keycloak
+  #   networks:
+  #     - shekza-network
+
+volumes:
+  pg-data:
+  redis-data:
+  minio-data:
+  es-data:
+
+networks:
+  shekza-network:
+    driver: bridge
