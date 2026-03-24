@@ -5,59 +5,65 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 
-const slides = [
-  {
-    id: 1,
-    tag: '✨ Spring Collection 2026',
-    title: 'Discover Your\nTrue Aesthetic',
-    subtitle: 'Curated fashion up to 60% OFF — limited time only.',
-    cta: 'Shop Now',
-    ctaLink: '/products',
-    bgFrom: 'from-pink-50',
-    bgTo: 'to-rose-100',
-    accent: 'from-pink-400 to-rose-600',
-    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=1200',
-    badge: '🔥 Up to 60% OFF',
-  },
-  {
-    id: 2,
-    tag: '⚡ Flash Sale — 6 Hours Only',
-    title: 'Mega Sale Is\nLive Now!',
-    subtitle: 'Hundreds of premium products with insane discounts.',
-    cta: 'See Deals',
-    ctaLink: '#flash-sale',
-    bgFrom: 'from-violet-50',
-    bgTo: 'to-purple-100',
-    accent: 'from-violet-500 to-purple-600',
-    image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=1200',
-    badge: '⏰ Limited Time',
-  },
-  {
-    id: 3,
-    tag: '🌸 New Arrivals',
-    title: 'Fresh Drops\nEvery Week',
-    subtitle: 'Be the first to wear the latest trends from top brands.',
-    cta: 'Explore New',
-    ctaLink: '/products?sort=new',
-    bgFrom: 'from-amber-50',
-    bgTo: 'to-orange-100',
-    accent: 'from-amber-400 to-orange-500',
-    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=1200',
-    badge: '🆕 New Arrivals',
-  },
-];
+import { ContentService } from '@/services/content.service';
+
+interface Slide {
+  id: number;
+  tag: string;
+  title: string;
+  subtitle: string;
+  cta: string;
+  ctaLink: string;
+  bgFrom: string;
+  bgTo: string;
+  accent: string;
+  image: string;
+  badge: string;
+}
 
 export default function HeroBanner() {
+  const [slides, setSlides] = useState<Slide[]>([]);
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
 
   useEffect(() => {
+    const loadSlides = async () => {
+      try {
+        const sections = await ContentService.getActiveSectionsByType('HERO_CAROUSEL');
+        if (sections.length > 0 && sections[0].items) {
+          const mapped = sections[0].items.map(item => {
+            const styles = item.styleConfig?.split(',') || ['from-pink-50', 'to-rose-100', 'from-pink-400 to-rose-600'];
+            return {
+              id: item.id || 0,
+              tag: item.tag || '',
+              title: item.title || '',
+              subtitle: item.subtitle || '',
+              cta: item.ctaText || 'Shop Now',
+              ctaLink: item.linkUrl || '/products',
+              bgFrom: styles[0] || 'from-pink-50',
+              bgTo: styles[1] || 'to-rose-100',
+              accent: styles[2] || 'from-pink-400 to-rose-600',
+              image: item.imageUrl || '',
+              badge: item.badgeText || '',
+            };
+          });
+          setSlides(mapped);
+        }
+      } catch (error) {
+        console.error('Failed to load hero slides', error);
+      }
+    };
+    loadSlides();
+  }, []);
+
+  useEffect(() => {
+    if (slides.length <= 1) return;
     const timer = setInterval(() => {
       setDirection(1);
       setCurrent((c) => (c + 1) % slides.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   const goTo = (idx: number) => {
     setDirection(idx > current ? 1 : -1);
@@ -65,6 +71,8 @@ export default function HeroBanner() {
   };
 
   const slide = slides[current];
+
+  if (!slide) return null;
 
   const variants = {
     enter: (d: number) => ({ x: d > 0 ? '100%' : '-100%', opacity: 0 }),

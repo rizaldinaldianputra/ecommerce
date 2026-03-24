@@ -6,6 +6,7 @@ export interface AuthUser {
   fullName: string;
   profilePicture?: string;
   roles: string[];
+  taskGroup?: string;
 }
 
 export const authService = {
@@ -37,6 +38,12 @@ export const authService = {
     };
 
     localStorage.setItem('shekza_user', JSON.stringify(updatedUser));
+    
+    if (typeof document !== 'undefined') {
+      const role = updatedUser.roles?.includes('ROLE_ADMIN') ? 'ROLE_ADMIN' : 'ROLE_USER';
+      document.cookie = `shekza_role=${role}; path=/; max-age=86400; SameSite=Lax`;
+    }
+
     window.dispatchEvent(new Event('auth-change'));
     return updatedUser;
   },
@@ -58,6 +65,8 @@ export const authService = {
       // Set cookie for middleware (Next.js server-side)
       if (typeof document !== 'undefined') {
         document.cookie = `shekza_token=${data.token}; path=/; max-age=86400; SameSite=Lax`;
+        const role = data.roles?.includes('ROLE_ADMIN') ? 'ROLE_ADMIN' : 'ROLE_USER';
+        document.cookie = `shekza_role=${role}; path=/; max-age=86400; SameSite=Lax`;
       }
 
       window.dispatchEvent(new Event('auth-change'));
@@ -75,6 +84,8 @@ export const authService = {
 
       if (typeof document !== 'undefined') {
         document.cookie = `shekza_token=${data.token}; path=/; max-age=86400; SameSite=Lax`;
+        const role = data.roles?.includes('ROLE_ADMIN') ? 'ROLE_ADMIN' : 'ROLE_USER';
+        document.cookie = `shekza_role=${role}; path=/; max-age=86400; SameSite=Lax`;
       }
 
       window.dispatchEvent(new Event('auth-change'));
@@ -88,6 +99,7 @@ export const authService = {
 
     if (typeof document !== 'undefined') {
       document.cookie = 'shekza_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+      document.cookie = 'shekza_role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
     }
 
     window.dispatchEvent(new Event('auth-change'));

@@ -20,10 +20,13 @@ import { Combobox } from '@/components/ui/combobox';
 import { ImageUpload } from '@/components/ui/image-upload';
 
 const variantSchema = z.object({
+  id: z.number().optional(),
   sku: z.string().min(3),
   size: z.string().optional(),
   color: z.string().optional(),
+  hexColor: z.string().optional(),
   price: z.coerce.number().min(0.01),
+  discountPrice: z.coerce.number().min(0).optional(),
   stock: z.coerce.number().min(0),
   isActive: z.boolean().default(true),
   imageUrl: z.string().optional(),
@@ -64,7 +67,7 @@ export default function ProductEditPage() {
       isFeatured: false,
       imageUrl: '',
       images: [],
-      variants: [{ sku: '', size: '', color: '', price: 0.01, stock: 0, isActive: true, imageUrl: '' }],
+      variants: [{ sku: '', size: '', color: '', hexColor: '', price: 0.01, discountPrice: 0, stock: 0, isActive: true, imageUrl: '' }],
     },
   });
 
@@ -96,7 +99,9 @@ export default function ProductEditPage() {
               sku: v.sku,
               size: v.size || '',
               color: v.color || '',
+              hexColor: v.hexColor || '',
               price: v.price || 0.01,
+              discountPrice: v.discountPrice || 0,
               stock: v.stock || 0,
               isActive: v.isActive,
               imageUrl: v.imageUrl || '',
@@ -110,6 +115,18 @@ export default function ProductEditPage() {
     loadData();
   }, [isNew, params.id]);
 
+  // Auto-generate slug from name
+  const name = form.watch('name');
+  useEffect(() => {
+    if (isNew || !form.getValues('slug')) {
+      const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+      form.setValue('slug', slug);
+    }
+  }, [name, form, isNew]);
+
   const onSubmit = async (values: any) => {
     setIsLoading(true);
     try {
@@ -118,6 +135,7 @@ export default function ProductEditPage() {
         variants: values.variants.map((v: any) => ({
           ...v,
           price: Number(v.price),
+          discountPrice: Number(v.discountPrice),
           stock: Number(v.stock),
         }))
       };
@@ -326,8 +344,8 @@ export default function ProductEditPage() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => append({ sku: '', size: '', color: '', price: 0, stock: 0, isActive: true })}
-                className="rounded-full border-pink-200 dark:border-pink-900/50 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/10 transition-all font-medium"
+                onClick={() => append({ sku: '', size: '', color: '', price: 0, discountPrice: 0, stock: 0, isActive: true })}
+                className="rounded-full border-pink-200 dark:border-pink-900/50 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/10 transition-all font-bold"
               >
                 <Plus className="h-4 w-4 mr-1" /> Add Variant
               </Button>
@@ -346,7 +364,7 @@ export default function ProductEditPage() {
                         {index + 1}
                       </div>
                       <div>
-                        <h4 className="text-sm font-semibold text-slate-800">
+                        <h4 className="text-sm font-bold text-slate-800">
                           Product Variant
                         </h4>
                         <p className="text-xs text-slate-400">
@@ -368,13 +386,13 @@ export default function ProductEditPage() {
                   </div>
 
                   {/* BASIC INFO */}
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <FormField
                       control={form.control}
                       name={`variants.${index}.sku`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs font-medium text-slate-500">
+                          <FormLabel className="text-xs font-bold text-slate-500">
                             SKU
                           </FormLabel>
                           <FormControl>
@@ -394,7 +412,7 @@ export default function ProductEditPage() {
                       name={`variants.${index}.size`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs font-medium text-slate-500">
+                          <FormLabel className="text-xs font-bold text-slate-500">
                             Size
                           </FormLabel>
                           <FormControl>
@@ -414,7 +432,7 @@ export default function ProductEditPage() {
                       name={`variants.${index}.color`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs font-medium text-slate-500">
+                          <FormLabel className="text-xs font-bold text-slate-500">
                             Color
                           </FormLabel>
                           <FormControl>
@@ -431,10 +449,37 @@ export default function ProductEditPage() {
 
                     <FormField
                       control={form.control}
+                      name={`variants.${index}.hexColor`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-bold text-slate-500">
+                            Hex Color
+                          </FormLabel>
+                          <FormControl>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                {...field}
+                                placeholder="#000000"
+                                className="rounded-xl focus-visible:ring-pink-500 flex-1 uppercase"
+                                maxLength={7}
+                              />
+                              <div 
+                                className="h-10 w-10 rounded-xl border border-slate-200 shrink-0 shadow-sm"
+                                style={{ backgroundColor: field.value || 'transparent' }}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
                       name={`variants.${index}.price`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs font-medium text-slate-500">
+                          <FormLabel className="text-xs font-bold text-slate-500">
                             Price
                           </FormLabel>
                           <FormControl>
@@ -453,10 +498,32 @@ export default function ProductEditPage() {
 
                     <FormField
                       control={form.control}
+                      name={`variants.${index}.discountPrice`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-bold text-slate-500">
+                            Discount Price
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              {...field}
+                              placeholder="0.00"
+                              className="rounded-xl focus-visible:ring-pink-500 border-pink-200 bg-pink-50/20"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
                       name={`variants.${index}.stock`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs font-medium text-slate-500">
+                          <FormLabel className="text-xs font-bold text-slate-500">
                             Stock
                           </FormLabel>
                           <FormControl>
@@ -464,7 +531,8 @@ export default function ProductEditPage() {
                               type="number"
                               {...field}
                               placeholder="0"
-                              className="rounded-xl focus-visible:ring-pink-500"
+                              disabled={!isNew && !!form.getValues(`variants.${index}.id` as any)}
+                              className={`rounded-xl focus-visible:ring-pink-500 ${!isNew && !!form.getValues(`variants.${index}.id` as any) ? 'bg-slate-50 text-slate-400 cursor-not-allowed' : ''}`}
                             />
                           </FormControl>
                           <FormMessage />
@@ -483,7 +551,7 @@ export default function ProductEditPage() {
                       name={`variants.${index}.imageUrl`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs font-medium text-slate-500">
+                          <FormLabel className="text-xs font-bold text-slate-500">
                             Variant Image
                           </FormLabel>
                           <FormControl>
@@ -506,7 +574,7 @@ export default function ProductEditPage() {
                       render={({ field }) => (
                         <FormItem className="flex items-center justify-between rounded-2xl border border-slate-200 p-4 bg-slate-50">
                           <div>
-                            <FormLabel className="text-sm font-medium text-slate-700">
+                            <FormLabel className="text-sm font-bold text-slate-700">
                               Active Variant
                             </FormLabel>
                             <p className="text-xs text-slate-400">

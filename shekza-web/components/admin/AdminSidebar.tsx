@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -8,13 +9,19 @@ import {
   Settings,
   ChevronLeft,
   Tag,
-  Gift
+  Gift,
+  PlusSquare,
+  Zap,
+  LayoutTemplate,
+  Newspaper,
+  ClipboardList,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { authService } from '@/services/auth.service';
 
 const NAV_GROUPS = [
   {
@@ -28,20 +35,34 @@ const NAV_GROUPS = [
     items: [
       { name: 'Products', href: '/admin/products', icon: Package },
       { name: 'Categories', href: '/admin/categories', icon: Tag },
+      { name: 'Stock Management', href: '/admin/stock', icon: PlusSquare },
+      { name: 'Flash Sales', href: '/admin/flash-sales', icon: Zap },
       { name: 'Vouchers', href: '/admin/vouchers', icon: Gift },
     ]
   },
   {
-    title: 'Sales & Customers',
+    title: 'Content Management',
+    items: [
+      { name: 'Hero Carousel', href: '/admin/content-sections?type=HERO_CAROUSEL', icon: LayoutTemplate },
+      { name: 'Curated Selections', href: '/admin/content-sections?type=CURATED_PRODUCTS', icon: LayoutTemplate },
+      { name: 'Recommendations', href: '/admin/content-sections?type=RECOMMENDED_PRODUCTS', icon: LayoutTemplate },
+      { name: 'Why Shop Perks', href: '/admin/content-sections?type=WHY_SHOP', icon: LayoutTemplate },
+      { name: 'Shop the Look', href: '/admin/content-sections?type=SHOP_THE_LOOK', icon: LayoutTemplate },
+      { name: 'News & Articles', href: '/admin/news', icon: Newspaper },
+    ]
+  },
+  {
+    title: 'Sales & Operations',
     items: [
       { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
-      { name: 'Customers', href: '/admin/customers', icon: Users },
+      { name: 'Workflow Tasks', href: '/admin/orders/tasks', icon: ClipboardList, restrictedTo: ['ORDER_PROCESSOR', 'SHIPPING', 'CUSTOMER_SERVICE', 'ADMIN'] },
+      { name: 'Team Management', href: '/admin/users', icon: Users, roleRequired: 'ROLE_ADMIN' },
     ]
   },
   {
     title: 'System',
     items: [
-      { name: 'Settings', href: '/admin/settings', icon: Settings },
+      { name: 'Settings', href: '/admin/settings', icon: Settings, roleRequired: 'ROLE_ADMIN' },
     ]
   }
 ];
@@ -58,6 +79,31 @@ export default function AdminSidebar({
   setIsCollapsed: (v: boolean) => void;
 }) {
   const pathname = usePathname();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const userData = authService.getUser();
+    setUser(userData);
+
+    const handleAuthChange = () => {
+      setUser(authService.getUser());
+    };
+    window.addEventListener('auth-change', handleAuthChange);
+    return () => window.removeEventListener('auth-change', handleAuthChange);
+  }, []);
+
+  const userRoles = user?.roles || [];
+  const userTaskGroup = user?.taskGroup || '';
+  const isAdmin = userRoles.includes('ROLE_ADMIN');
+
+  const isItemVisible = (item: any) => {
+    if (item.roleRequired && !userRoles.includes(item.roleRequired)) return false;
+    if (item.restrictedTo) {
+      if (isAdmin) return true;
+      if (!item.restrictedTo.includes(userTaskGroup)) return false;
+    }
+    return true;
+  };
 
   return (
     <>
@@ -83,9 +129,9 @@ export default function AdminSidebar({
           !isOpen && "lg:translate-x-0"
         )}
       >
-        <div className="flex h-16 items-center justify-between px-6 border-b border-white/20 dark:border-white/10">
+        <div className="flex h-16 items-center justify-between px-6 border-b border-slate-100 dark:border-white/10">
           <Link href="/admin" className="flex items-center gap-2 group overflow-hidden">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 text-white shadow-lg shadow-pink-500/30 group-hover:scale-105 transition-transform ml-0.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 text-white shadow-lg shadow-pink-500/30 group-hover:scale-105 transition-transform">
               <span className="font-bold text-lg">S</span>
             </div>
             {!isCollapsed && (
@@ -102,69 +148,51 @@ export default function AdminSidebar({
             variant="ghost"
             size="icon"
             onClick={() => setIsOpen(false)}
-            className="lg:hidden text-slate-500 hover:text-slate-800 dark:text-slate-400"
+            className="lg:hidden text-slate-500"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
         </div>
 
-        <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100vh-4rem)]">
-          {NAV_GROUPS.map((group) => (
-            <div key={group.title} className="mb-2">
-              {!isCollapsed && (
-                <div className="mb-3 mt-6 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 whitespace-nowrap overflow-hidden">
-                  {group.title}
-                </div>
-              )}
-              {isCollapsed && <div className="h-4" />}
-              <div className="space-y-1">
-                {group.items.map((item) => {
+        <nav className="p-4 space-y-6 overflow-y-auto h-[calc(100vh-4rem)]">
+          {NAV_GROUPS.map((group) => {
+            const visibleItems = group.items.filter(isItemVisible);
+            if (visibleItems.length === 0) return null;
+
+            return (
+              <div key={group.title} className="space-y-1">
+                {!isCollapsed && (
+                  <h4 className="px-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-3 mt-2">
+                    {group.title}
+                  </h4>
+                )}
+                {visibleItems.map((item) => {
                   const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/admin');
                   
                   return (
-                    <Link key={item.name} href={item.href} title={isCollapsed ? item.name : undefined}>
-                      <span className={cn(
-                        "flex items-center rounded-xl transition-all duration-200 group relative overflow-hidden",
-                        isCollapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5",
-                        isActive 
-                          ? "text-pink-700 font-medium dark:text-pink-300"
-                          : "text-slate-600 hover:text-pink-600 hover:bg-pink-50/50 dark:text-slate-300 dark:hover:bg-pink-900/20"
-                      )}>
-                        {isActive && (
-                          <motion.div 
-                            layoutId={`sidebar-active-pill-${group.title}`}
-                            className="absolute inset-0 bg-gradient-to-r from-pink-100/80 to-rose-50/80 dark:from-pink-900/40 dark:to-rose-900/20 -z-10"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.2 }}
-                          />
-                        )}
-                        {isActive && (
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-pink-500 rounded-r-full shadow-[0_0_10px_rgba(236,72,153,0.5)]"></div>
-                        )}
-                        
-                        <item.icon className={cn(
-                          "h-5 w-5 transition-transform duration-200 group-hover:scale-110 shrink-0",
-                          isActive ? "text-pink-600 dark:text-pink-400" : "text-slate-400 group-hover:text-pink-500"
-                        )} />
-                        {!isCollapsed && (
-                          <motion.span 
-                            initial={{ opacity: 0, x: -5 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="relative z-10 whitespace-nowrap"
-                          >
-                            {item.name}
-                          </motion.span>
-                        )}
-                      </span>
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={cn(
+                        "group flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300",
+                        isActive
+                          ? "bg-pink-500 text-white shadow-lg shadow-pink-500/20"
+                          : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
+                      )}
+                    >
+                      <item.icon size={20} className={cn(
+                        "transition-transform group-hover:scale-110 shrink-0",
+                        isActive ? "text-white" : "group-hover:text-pink-500")
+                      } />
+                      {!isCollapsed && (
+                        <span className="text-sm font-bold tracking-tight">{item.name}</span>
+                      )}
                     </Link>
                   );
                 })}
               </div>
-            </div>
-          ))}
-
-
+            );
+          })}
         </nav>
       </aside>
     </>

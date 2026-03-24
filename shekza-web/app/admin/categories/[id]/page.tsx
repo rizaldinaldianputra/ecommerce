@@ -63,6 +63,18 @@ export default function CategoryEditPage() {
     }
   }, [isNew, params.id]);
 
+  // Auto-generate slug from name
+  const name = form.watch('name');
+  useEffect(() => {
+    if (isNew || !form.getValues('slug')) {
+      const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+      form.setValue('slug', slug);
+    }
+  }, [name, form, isNew]);
+
   const onSubmit = async (values: any) => {
     setIsLoading(true);
     try {
@@ -96,7 +108,7 @@ export default function CategoryEditPage() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-slate-700 dark:text-slate-300">Category Name</FormLabel>
+                <FormLabel className="text-slate-700 dark:text-slate-300 font-bold uppercase tracking-tight">Category Name</FormLabel>
                 <FormControl>
                   <Input placeholder="e.g. Electronics" className="rounded-xl h-12" {...field} />
                 </FormControl>
@@ -110,7 +122,7 @@ export default function CategoryEditPage() {
             name="slug"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-slate-700 dark:text-slate-300">Slug</FormLabel>
+                <FormLabel className="text-slate-700 dark:text-slate-300 font-bold uppercase tracking-tight">Slug</FormLabel>
                 <FormControl>
                   <Input placeholder="e.g. electronics" className="rounded-xl h-12" {...field} />
                 </FormControl>
@@ -124,7 +136,7 @@ export default function CategoryEditPage() {
             name="description"
             render={({ field }) => (
               <FormItem className="md:col-span-2">
-                <FormLabel className="text-slate-700 dark:text-slate-300">Description</FormLabel>
+                <FormLabel className="text-slate-700 dark:text-slate-300 font-bold uppercase tracking-tight">Description</FormLabel>
                 <FormControl>
                   <Textarea 
                     placeholder="Describe what this category is for..." 
@@ -142,7 +154,7 @@ export default function CategoryEditPage() {
             name="imageUrl"
             render={({ field }) => (
               <FormItem className="md:col-span-2">
-                <FormLabel className="text-slate-700 dark:text-slate-300">Category Image</FormLabel>
+                <FormLabel className="text-slate-700 dark:text-slate-300 font-bold uppercase tracking-tight">Category Image</FormLabel>
                 <FormControl>
                   <ImageUpload 
                     value={field.value} 
@@ -160,7 +172,7 @@ export default function CategoryEditPage() {
             render={({ field }) => (
               <FormItem className="flex items-center justify-between rounded-2xl border border-slate-200/50 dark:border-slate-800/50 p-4 bg-slate-50/50 dark:bg-slate-900/50 md:col-span-2">
                 <div className="space-y-0.5">
-                  <FormLabel className="text-slate-700 dark:text-slate-300">Active Status</FormLabel>
+                  <FormLabel className="text-slate-700 dark:text-slate-300 font-bold uppercase tracking-tight">Active Status</FormLabel>
                   <p className="text-xs text-slate-500">Visible to customers in the storefront</p>
                 </div>
                 <FormControl>

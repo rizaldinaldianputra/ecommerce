@@ -10,7 +10,7 @@ import {
   SortingState,
   getSortedRowModel,
 } from '@tanstack/react-table';
-import { ChevronLeft, ChevronRight, Edit, Eye, Trash2, ToggleLeft, ToggleRight, Search, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Eye, Trash2, ToggleLeft, ToggleRight, Search, Plus, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -23,6 +23,7 @@ interface CrudTableProps<TData, TValue> {
   onEdit?: (item: TData) => void;
   onDelete?: (item: TData) => void;
   onToggleStatus?: (item: TData) => void;
+  onHistory?: (item: TData) => void;
   hasActions?: boolean;
 }
 
@@ -35,6 +36,7 @@ export function CrudTable<TData, TValue>({
   onEdit,
   onDelete,
   onToggleStatus,
+  onHistory,
   hasActions = true
 }: CrudTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -67,6 +69,11 @@ export function CrudTable<TData, TValue>({
                   <span className="sr-only">Toggle Status</span>
                   {/* Assume we don't know the status, generic icon. Real impl would check item stat */}
                   <ToggleRight className="h-4 w-4 text-pink-500" />
+                </Button>
+              )}
+              {onHistory && (
+                <Button variant="ghost" size="icon" onClick={() => onHistory(item)} className="h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100">
+                  <History className="h-4 w-4" />
                 </Button>
               )}
               {onDelete && (

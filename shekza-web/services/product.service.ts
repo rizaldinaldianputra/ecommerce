@@ -38,6 +38,12 @@ class ProductServiceClass extends BaseService<Product> {
       return [];
     }
   }
+
+  async getByIds(ids: number[]): Promise<Product[]> {
+    if (ids.length === 0) return [];
+    const response = await apiClient.get<any>(`${this.endpoint}/list`, { params: { ids: ids.join(',') } });
+    return response.data ?? response;
+  }
 }
 
 export const ProductService = new ProductServiceClass();

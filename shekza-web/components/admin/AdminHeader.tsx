@@ -14,8 +14,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authService } from '@/services/auth.service';
+import { OrderWorkflowService } from '@/services/order-workflow.service';
 import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { useState, useEffect } from 'react';
 
 export default function AdminHeader({
   onMenuClick,
@@ -27,6 +29,23 @@ export default function AdminHeader({
   setIsCollapsed: (v: boolean) => void;
 }) {
   const router = useRouter();
+
+  const [taskCount, setTaskCount] = useState(0);
+
+  const fetchTasks = async () => {
+    try {
+      const tasks = await OrderWorkflowService.getAdminTasks();
+      setTaskCount(tasks.length);
+    } catch (error) {
+      console.error('Failed to fetch admin tasks:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+    const interval = setInterval(fetchTasks, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = () => {
     authService.logout();
@@ -52,9 +71,18 @@ export default function AdminHeader({
 
       <div className="flex items-center gap-4">
         <ThemeToggle />
-        <Button variant="outline" size="icon" className="relative rounded-full bg-white/50 hover:bg-white/80 dark:bg-black/50 backdrop-blur-sm border-white/30">
-          <Bell className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-          <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-pink-500 border-2 border-white dark:border-black"></span>
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={() => router.push('/admin/orders/tasks')}
+          className="relative rounded-full bg-white/50 hover:bg-white/80 dark:bg-black/50 backdrop-blur-sm border-white/30 group"
+        >
+          <Bell className="h-5 w-5 text-slate-600 dark:text-slate-300 group-hover:text-pink-600 transition-colors" />
+          {taskCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-pink-500 text-[10px] font-bold text-white border-2 border-white dark:border-black animate-in zoom-in duration-300">
+              {taskCount}
+            </span>
+          )}
         </Button>
 
         <DropdownMenu>

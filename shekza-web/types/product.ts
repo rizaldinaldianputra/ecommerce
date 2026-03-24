@@ -5,6 +5,7 @@ export interface ProductVariant {
   sku: string;
   size?: string;
   color?: string;
+  hexColor?: string;
   price: number;
   discountPrice?: number;
   costPrice?: number;

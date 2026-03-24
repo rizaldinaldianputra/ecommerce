@@ -31,7 +31,7 @@ export default function VoucherEditPage() {
   const isNew = params.id === 'new';
 
   const form = useForm<VoucherFormValues>({
-    resolver: zodResolver(voucherSchema),
+    resolver: zodResolver(voucherSchema) as any,
     defaultValues: {
       code: '',
       discountAmount: 0,
@@ -93,9 +93,9 @@ export default function VoucherEditPage() {
             name="code"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Voucher Code</FormLabel>
+                <FormLabel className="font-bold uppercase tracking-tight">Voucher Code</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. SHEKZA2026" className="uppercase font-bold tracking-widest" {...field} />
+                  <Input placeholder="e.g. SHEKZA2026" className="uppercase font-bold tracking-widest rounded-xl h-12" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -107,9 +107,9 @@ export default function VoucherEditPage() {
             name="validUntil"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Valid Until</FormLabel>
+                <FormLabel className="font-bold uppercase tracking-tight">Valid Until</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <Input type="date" className="rounded-xl h-12" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -121,9 +121,9 @@ export default function VoucherEditPage() {
             name="discountAmount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Discount Amount (IDR)</FormLabel>
+                <FormLabel className="font-bold uppercase tracking-tight">Discount Amount (IDR)</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="0" {...field} />
+                  <Input type="number" placeholder="0" className="rounded-xl h-12 font-bold" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -135,9 +135,9 @@ export default function VoucherEditPage() {
             name="minPurchase"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Min. Purchase (IDR)</FormLabel>
+                <FormLabel className="font-bold uppercase tracking-tight">Min. Purchase (IDR)</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="0" {...field} />
+                  <Input type="number" placeholder="0" className="rounded-xl h-12 font-bold" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

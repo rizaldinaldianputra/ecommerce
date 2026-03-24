@@ -56,7 +56,7 @@ export default function VouchersPage() {
       accessorKey: 'isActive',
       header: 'Status',
       cell: ({ row }) => (
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+        <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
           row.original.isActive 
             ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' 
             : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
@@ -84,9 +84,11 @@ export default function VouchersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 uppercase tracking-tight">Vouchers</h1>
-        <p className="text-slate-500 text-sm mt-1">Manage discount codes and promotions.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 uppercase tracking-tight">Vouchers</h1>
+          <p className="text-slate-500 text-sm mt-1">Manage discount codes and promotions.</p>
+        </div>
       </div>
 
       <CrudTable

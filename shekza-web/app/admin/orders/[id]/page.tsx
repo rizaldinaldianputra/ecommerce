@@ -6,14 +6,17 @@ import { OrderService } from '@/services/order.service';
 import { Order, OrderStatus } from '@/types/order';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle2, Clock, Package, Truck, XCircle, Printer } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Clock, Package, Truck, XCircle, Printer, AlertCircle, RefreshCcw } from 'lucide-react';
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string, color: string, icon: any }> = {
   PENDING: { label: 'Pending Payment', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', icon: Clock },
   PAID: { label: 'Payment Received', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', icon: CheckCircle2 },
-  SHIPPED: { label: 'Shipped', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: Truck },
+  PROCESSING: { label: 'Processing', color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400', icon: Clock },
+  DELIVERING: { label: 'Delivering', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: Truck },
   COMPLETED: { label: 'Completed', color: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400', icon: Package },
   CANCELLED: { label: 'Cancelled', color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400', icon: XCircle },
+  COMPLAINT: { label: 'Complaint', color: 'bg-amber-50 text-amber-600', icon: AlertCircle },
+  RETURNED: { label: 'Returned', color: 'bg-slate-100 text-slate-600', icon: RefreshCcw },
 };
 
 export default function OrderDetailsPage() {
@@ -95,7 +98,7 @@ export default function OrderDetailsPage() {
                     </div>
                     <div>
                       <h3 className="font-bold text-slate-800 dark:text-slate-100">{item.productName}</h3>
-                      <p className="text-sm text-slate-500 italic">Qty: {item.quantity}</p>
+                      <p className="text-sm text-slate-500">Qty: {item.quantity}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -115,7 +118,7 @@ export default function OrderDetailsPage() {
                   <span>Shipping</span>
                   <span>Free</span>
                 </div>
-                <div className="flex justify-between text-xl font-black text-pink-600 dark:text-pink-400 pt-2 border-t border-slate-200 dark:border-slate-800">
+                <div className="flex justify-between text-xl font-bold text-pink-600 dark:text-pink-400 pt-2 border-t border-slate-200 dark:border-slate-800">
                   <span>Total</span>
                   <span>Rp {order.totalAmount.toLocaleString()}</span>
                 </div>
@@ -129,7 +132,10 @@ export default function OrderDetailsPage() {
               <Button onClick={() => handleUpdateStatus('PAID')} variant="outline" className="rounded-full bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
                 Mark as Paid
               </Button>
-              <Button onClick={() => handleUpdateStatus('SHIPPED')} variant="outline" className="rounded-full bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100">
+              <Button onClick={() => handleUpdateStatus('PROCESSING')} variant="outline" className="rounded-full bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100">
+                Process Order
+              </Button>
+              <Button onClick={() => handleUpdateStatus('DELIVERING')} variant="outline" className="rounded-full bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100">
                 Ship Order
               </Button>
               <Button onClick={() => handleUpdateStatus('COMPLETED')} variant="outline" className="rounded-full bg-pink-50 text-pink-700 border-pink-200 hover:bg-pink-100">

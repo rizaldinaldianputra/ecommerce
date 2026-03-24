@@ -51,7 +51,7 @@ export default function ProductsPage() {
               )}
             </div>
             <div className="flex flex-col">
-              <span className="font-semibold text-slate-900 dark:text-slate-100">{row.original.name}</span>
+              <span className="font-bold text-slate-900 dark:text-slate-100">{row.original.name}</span>
               <span className="text-xs text-slate-500">{row.original.category?.name || 'Uncategorized'}</span>
             </div>
           </div>
@@ -63,7 +63,7 @@ export default function ProductsPage() {
       header: 'Price',
       cell: ({ row }) => {
         const price = row.original.variants?.[0]?.price || row.original.price || 0;
-        return <span className="font-medium">Rp {price.toLocaleString()}</span>;
+        return <span className="font-bold">Rp {price.toLocaleString()}</span>;
       },
     },
     {
@@ -72,7 +72,7 @@ export default function ProductsPage() {
       cell: ({ row }) => {
         const stock = row.original.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || row.original.qty || 0;
         return (
-          <span className={`font-medium ${stock < 10 ? 'text-red-500' : 'text-slate-600'}`}>
+          <span className={`font-bold ${stock < 10 ? 'text-red-500' : 'text-slate-600'}`}>
             {stock} units
           </span>
         );
@@ -82,7 +82,7 @@ export default function ProductsPage() {
       accessorKey: 'isActive',
       header: 'Status',
       cell: ({ row }) => (
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${row.original.isActive
+        <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${row.original.isActive
             ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400'
             : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
           }`}>
@@ -124,6 +124,7 @@ export default function ProductsPage() {
         onAdd={handleAdd}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onHistory={(product) => router.push(`/admin/stock?search=${encodeURIComponent(product.name)}`)}
       />
     </div>
   );

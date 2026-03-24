@@ -25,6 +25,7 @@ interface ComboboxProps {
   onChange: (value: string | number) => void;
   placeholder?: string;
   emptyText?: string;
+  disabled?: boolean;
 }
 
 export function Combobox({
@@ -33,6 +34,7 @@ export function Combobox({
   onChange,
   placeholder = 'Select option...',
   emptyText = 'No option found.',
+  disabled = false,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -43,7 +45,8 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between h-12 rounded-2xl border-slate-200 dark:border-white/10 bg-white/50 dark:bg-black/50 hover:bg-white/80 dark:hover:bg-black/80 transition-all font-medium"
+          disabled={disabled}
+          className="w-full justify-between h-12 rounded-2xl border-slate-200 dark:border-white/10 bg-white/50 dark:bg-black/50 hover:bg-white/80 dark:hover:bg-black/80 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {value
             ? options.find((option) => option.value === value)?.label

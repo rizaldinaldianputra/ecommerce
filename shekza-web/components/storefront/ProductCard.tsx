@@ -32,106 +32,125 @@ export default function ProductCard({ product }: ProductCardProps) {
       <motion.div
         onHoverStart={() => setIsHovered(true)}
         onHoverEnd={() => setIsHovered(false)}
-        className="group relative bg-white rounded-[2rem] p-3 transition-all duration-500 hover:shadow-2xl hover:shadow-pink-500/10 border border-neutral-100 hover:border-pink-100"
+        whileHover={{ y: -8 }}
+        className="group relative bg-white rounded-[2rem] overflow-hidden border border-neutral-100 hover:border-pink-200 transition-all duration-500 shadow-sm hover:shadow-[0_20px_60px_-10px_rgba(236,72,153,0.25)]"
       >
-        {/* Badges */}
-        <div className="absolute top-5 left-5 z-10 flex flex-col gap-2">
-          {product.isNew && (
-            <span className="px-3 py-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-pink-200">
-              New
-            </span>
-          )}
-          {product.isHot && (
-            <span className="px-3 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-amber-200">
-              Hot
-            </span>
-          )}
-        </div>
-
-        {/* Wishlist Toggle */}
-        <button
-          onClick={() => setIsWishlisted(!isWishlisted)}
-          className="absolute top-5 right-5 z-10 w-10 h-10 bg-white/80 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-90"
-        >
-          <Heart size={18} className={isWishlisted ? 'fill-pink-500 text-pink-500' : 'text-neutral-400'} />
-        </button>
-
-        {/* Image Container */}
-        <div className="relative aspect-[4/5] rounded-[1.5rem] overflow-hidden bg-neutral-50 mb-4">
+        {/* IMAGE */}
+        <div className="relative aspect-[4/5] overflow-hidden">
           <Link href={`/products/${product.slug}`}>
             <motion.img
               src={product.image}
               alt={product.name}
-              animate={{ scale: isHovered ? 1.08 : 1 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              animate={{ scale: isHovered ? 1.1 : 1 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className="w-full h-full object-cover"
             />
           </Link>
 
-          {/* Quick Actions Overlay */}
-          <div className={`absolute inset-0 bg-neutral-900/10 backdrop-blur-[2px] transition-opacity duration-300 flex items-center justify-center gap-3 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+          {/* GRADIENT OVERLAY */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500" />
+
+          {/* BADGES */}
+          <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+            {product.isNew && (
+              <span className="px-3 py-1 text-[10px] font-black bg-white/90 backdrop-blur rounded-full">
+                NEW
+              </span>
+            )}
+            {product.isHot && (
+              <span className="px-3 py-1 text-[10px] font-black bg-pink-500 text-white rounded-full">
+                HOT
+              </span>
+            )}
+          </div>
+
+          {/* WISHLIST */}
+          <button
+            onClick={() => setIsWishlisted(!isWishlisted)}
+            className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition"
+          >
+            <Heart
+              size={18}
+              className={`transition ${isWishlisted
+                ? 'fill-pink-500 text-pink-500'
+                : 'text-neutral-500'
+                }`}
+            />
+          </button>
+
+          {/* QUICK ACTION */}
+          <div className="absolute bottom-4 left-4 right-4 flex gap-2 opacity-0 translate-y-6 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
             <motion.button
-              whileHover={{ scale: 1.1, rotate: 5 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsCartModalOpen(true)}
-              className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-xl text-neutral-900 hover:bg-pink-500 hover:text-white transition-colors"
+              className="flex-1 py-3 bg-white text-neutral-900 rounded-xl font-bold text-sm shadow-lg hover:bg-pink-500 hover:text-white transition"
             >
-              <ShoppingBag size={20} />
+              Add to Cart
             </motion.button>
+
             <Link href={`/products/${product.slug}`}>
-              <motion.button
-                whileHover={{ scale: 1.1, rotate: -5 }}
-                whileTap={{ scale: 0.9 }}
-                className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-xl text-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors"
-              >
-                <Eye size={20} />
-              </motion.button>
+              <button className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg hover:bg-neutral-900 hover:text-white transition">
+                <Eye size={18} />
+              </button>
             </Link>
           </div>
         </div>
 
-        {/* Info */}
-        <div className="px-2 pb-2">
-          <div className="flex items-center gap-1 mb-1.5">
-            <Star size={12} className="fill-amber-400 text-amber-400" />
-            <span className="text-[11px] font-bold text-neutral-400">{product.rating}</span>
+        {/* CONTENT */}
+        <div className="p-5 space-y-3">
+          {/* RATING */}
+          <div className="flex items-center gap-2">
+            <Star size={14} className="text-amber-400 fill-amber-400" />
+            <span className="text-xs font-semibold text-neutral-500">
+              {product.rating}
+            </span>
           </div>
-          
+
+          {/* TITLE */}
           <Link href={`/products/${product.slug}`}>
-            <h3 className="text-sm font-black text-neutral-900 mb-2 truncate group-hover:text-pink-500 transition-colors">
+            <h3 className="text-sm font-bold text-neutral-900 group-hover:text-pink-500 transition line-clamp-1">
               {product.name}
             </h3>
           </Link>
 
+          {/* PRICE */}
           <div className="flex items-center justify-between">
-            <div className="flex items-baseline gap-2">
-              <span className="text-lg font-black text-neutral-900">${product.price}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-black text-neutral-900">
+                ${product.price}
+              </span>
               {product.originalPrice && (
-                <span className="text-xs text-neutral-400 line-through">${product.originalPrice}</span>
+                <span className="text-xs line-through text-neutral-400">
+                  ${product.originalPrice}
+                </span>
               )}
             </div>
-            
-            <button 
+
+            <button
               onClick={() => setIsCartModalOpen(true)}
-              className="text-[10px] font-black uppercase tracking-widest text-pink-500 hover:text-pink-600 flex items-center gap-1 transition-colors"
+              className="text-pink-500 text-xs font-bold hover:underline"
             >
-              Add <ShoppingBag size={12} />
+              Add
             </button>
+          </div>
+
+          {/* COLORS */}
+          <div className="flex gap-2">
+            {product.colors?.slice(0, 4).map((color, i) => (
+              <div
+                key={i}
+                className="w-4 h-4 rounded-full border border-neutral-200"
+                style={{ backgroundColor: color.toLowerCase() }}
+              />
+            ))}
           </div>
         </div>
       </motion.div>
 
-      <AddToCartModal 
-        isOpen={isCartModalOpen} 
-        onClose={() => setIsCartModalOpen(false)} 
-        product={{
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          image: product.image,
-          colors: product.colors,
-          sizes: product.sizes
-        }} 
+      <AddToCartModal
+        isOpen={isCartModalOpen}
+        onClose={() => setIsCartModalOpen(false)}
+        product={product}
       />
     </>
   );

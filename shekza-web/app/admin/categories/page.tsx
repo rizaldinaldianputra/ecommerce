@@ -61,7 +61,7 @@ export default function CategoriesPage() {
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ row }) => <span className="font-semibold">{row.original.name}</span>,
+      cell: ({ row }) => <span className="font-bold">{row.original.name}</span>,
     },
     {
       accessorKey: 'slug',
@@ -75,7 +75,7 @@ export default function CategoriesPage() {
       accessorKey: 'isActive',
       header: 'Status',
       cell: ({ row }) => (
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+        <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
           row.original.isActive 
             ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' 
             : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.22.1">
+  <bpmn:process id="order-process" name="Order Management Process" isExecutable="true" camunda:historyTimeToLive="P30D">
+    <bpmn:startEvent id="StartEvent_1" name="Order Created">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_AdminReview" />
+    <bpmn:userTask id="Activity_AdminReview" name="Admin Review Order" camunda:candidateGroups="ORDER_PROCESSOR">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="action" label="Action" type="enum">
+            <camunda:value id="accept" name="Accept and Process" />
+            <camunda:value id="reject" name="Reject Order" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_AdminReview" targetRef="Activity_AdminDelivery" />
+    <bpmn:userTask id="Activity_AdminDelivery" name="Input Tracking Number (Resi)" camunda:candidateGroups="SHIPPING">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="trackingNumber" label="Resi Number" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Activity_AdminDelivery" targetRef="Activity_NotifyDelivering" />
+    <bpmn:serviceTask id="Activity_NotifyDelivering" name="Update Status to Delivering" camunda:delegateExpression="${updateOrderStatusDelegate}">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Activity_NotifyDelivering" targetRef="Activity_UserConfirm" />
+    <bpmn:userTask id="Activity_UserConfirm" name="User Confirm or Complaint" camunda:assignee="${customerUsername}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="outcome" label="Outcome" type="enum">
+            <camunda:value id="confirm" name="Confirm Received" />
+            <camunda:value id="complaint" name="File Complaint" />
+          </camunda:formField>
+          <camunda:formField id="complaintNotes" label="Complaint Notes" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_1" name="Confirmed?">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_Confirmed</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Complaint</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Activity_UserConfirm" targetRef="Gateway_1" />
+    <bpmn:endEvent id="EndEvent_Success" name="Order Completed">
+      <bpmn:incoming>Flow_Confirmed</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Confirmed" name="Confirm" sourceRef="Gateway_1" targetRef="EndEvent_Success">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${outcome == 'confirm'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Complaint" name="Complaint" sourceRef="Gateway_1" targetRef="Activity_AdminComplaint">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${outcome == 'complaint'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="Activity_AdminComplaint" name="Handle Complaint / Return" camunda:candidateGroups="CUSTOMER_SERVICE">
+      <bpmn:incoming>Flow_Complaint</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="EndEvent_Resolved" name="Complaint Resolved">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Activity_AdminComplaint" targetRef="EndEvent_Resolved" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="order-process">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_AdminReview_di" bpmnElement="Activity_AdminReview">
+        <dc:Bounds x="270" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_AdminDelivery_di" bpmnElement="Activity_AdminDelivery">
+        <dc:Bounds x="430" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_UpdateStatus_di" bpmnElement="Activity_NotifyDelivering">
+        <dc:Bounds x="590" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_UserConfirm_di" bpmnElement="Activity_UserConfirm">
+        <dc:Bounds x="750" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1_di" bpmnElement="Gateway_1" isMarkerVisible="true">
+        <dc:Bounds x="915" y="152" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Success_di" bpmnElement="EndEvent_Success">
+        <dc:Bounds x="1052" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_AdminComplaint_di" bpmnElement="Activity_AdminComplaint">
+        <dc:Bounds x="1020" y="250" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Resolved_di" bpmnElement="EndEvent_Resolved">
+        <dc:Bounds x="1172" y="272" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="215" y="177" />
+        <di:waypoint x="270" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="370" y="177" />
+        <di:waypoint x="430" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="530" y="177" />
+        <di:waypoint x="590" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="690" y="177" />
+        <di:waypoint x="750" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="850" y="177" />
+        <di:waypoint x="915" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Confirmed_di" bpmnElement="Flow_Confirmed">
+        <di:waypoint x="965" y="177" />
+        <di:waypoint x="1052" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Complaint_di" bpmnElement="Flow_Complaint">
+        <di:waypoint x="940" y="202" />
+        <di:waypoint x="940" y="290" />
+        <di:waypoint x="1020" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="1120" y="290" />
+        <di:waypoint x="1172" y="290" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

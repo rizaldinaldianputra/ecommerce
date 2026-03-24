@@ -1,29 +1,79 @@
 'use client';
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import ProductCard from './ProductCard';
+import { ContentService } from '@/services/content.service';
+import { ProductService } from '@/services/product.service';
+import { Product } from '@/types/product';
 
 const categories = ['All', 'Best Seller', 'New Arrival', 'Sale', 'Trending'];
 
-const allProducts = [
-  { id: 1, name: 'Pastel Dream Hoodie', price: 49.99, originalPrice: 79.99, rating: 4.8, image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=600', colors: ['Pink', 'White', 'Black'], sizes: ['S', 'M', 'L', 'XL'], isNew: true, category: 'New Arrival', slug: 'pastel-dream-hoodie' },
-  { id: 2, name: 'Aesthetic Canvas Tote', price: 24.99, rating: 4.5, image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=600', colors: ['Cream', 'White'], sizes: ['One Size'], isHot: true, category: 'Trending', slug: 'aesthetic-canvas-tote' },
-  { id: 3, name: 'Minimalist Rose Watch', price: 89.99, originalPrice: 120.0, rating: 4.9, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600', colors: ['Gold', 'Silver'], sizes: ['One Size'], category: 'Best Seller', slug: 'minimalist-rose-watch' },
-  { id: 4, name: 'Oversized Denim Jacket', price: 65.0, rating: 4.7, image: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?auto=format&fit=crop&q=80&w=600', colors: ['Blue', 'Black'], sizes: ['M', 'L', 'XL'], isNew: true, category: 'New Arrival', slug: 'oversized-denim-jacket' },
-  { id: 5, name: 'Platform Chunky Sneakers', price: 79.99, originalPrice: 110.0, rating: 4.6, image: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&q=80&w=600', colors: ['White', 'Pastel'], sizes: ['38', '39', '40', '41'], category: 'Sale', slug: 'platform-chunky-sneakers' },
-  { id: 6, name: 'Vintage Cat-Eye Shades', price: 18.99, rating: 4.4, image: 'https://images.unsplash.com/photo-1511499767390-a75c1793ff02?auto=format&fit=crop&q=80&w=600', colors: ['Black', 'Pink'], sizes: ['One Size'], category: 'Trending', slug: 'vintage-cat-eye-shades' },
-  { id: 7, name: 'Silky Slip Dress', price: 45.0, rating: 4.8, image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&q=80&w=600', colors: ['Champagne', 'Silver', 'Black'], sizes: ['S', 'M', 'L'], isHot: true, category: 'Best Seller', slug: 'silky-slip-dress' },
-  { id: 8, name: 'Handmade Clay Earrings', price: 12.99, rating: 4.7, image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=600', colors: ['Earth', 'Multicolor'], sizes: ['One Size'], isNew: true, category: 'New Arrival', slug: 'handmade-clay-earrings' },
-];
+interface MappedProduct {
+  id: number;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  rating: number;
+  image: string;
+  colors: string[];
+  sizes: string[];
+  isNew?: boolean;
+  isHot?: boolean;
+  slug: string;
+  category: string;
+}
 
 export default function FeaturedProducts() {
   const [activeTab, setActiveTab] = useState('All');
+  const [products, setProducts] = useState<MappedProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredProducts = activeTab === 'All' 
-    ? allProducts 
-    : allProducts.filter(p => p.category === activeTab);
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const sections = await ContentService.getActiveSectionsByType('CURATED_PRODUCTS');
+        if (sections.length > 0 && sections[0].items) {
+          const productIds = sections[0].items
+            .map(item => item.productId)
+            .filter((id): id is number => id !== undefined && id !== null);
+
+          if (productIds.length > 0) {
+            const productData = await ProductService.getByIds(productIds);
+
+            // Map the tags from ContentItems back to the products for filtering
+            const mappedProducts = productData.map(p => {
+              const contentItem = sections[0].items.find(item => item.productId === p.id);
+              return {
+                id: p.id,
+                name: p.name,
+                price: p.price || p.variants?.[0]?.price || 0,
+                originalPrice: p.variants?.[0]?.price,
+                rating: 4.8, // Fallback rating
+                image: p.imageUrl || p.variants?.[0]?.imageUrl || '',
+                colors: p.variants ? [...new Set(p.variants.map(v => v.color).filter((c): c is string => !!c))] : [],
+                sizes: p.variants ? [...new Set(p.variants.map(v => v.size).filter((s): s is string => !!s))] : [],
+                isNew: true,
+                slug: p.slug,
+                category: contentItem?.tag || 'All'
+              };
+            });
+
+            setProducts(mappedProducts as any);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load curated products', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  const filteredProducts = activeTab === 'All'
+    ? products
+    : products.filter((p: any) => p.category === activeTab);
 
   return (
     <section className="py-24 relative overflow-hidden">
@@ -77,7 +127,7 @@ export default function FeaturedProducts() {
             ))}
           </AnimatePresence>
         </motion.div>
-        
+
         <div className="mt-20 text-center">
           <Link href="/products">
             <motion.button

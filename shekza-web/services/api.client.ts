@@ -1,16 +1,34 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api';
 
+interface ApiRequestOptions extends RequestInit {
+  params?: Record<string, string | number | boolean>;
+}
+
 /**
  * A standard, generic fetch wrapper for centralizing API communications.
  * Handles the base URL application, standard headers, and default error checks.
  */
 class ApiClient {
 
-  private async fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  private async fetchApi<T>(endpoint: string, options: ApiRequestOptions = {}): Promise<T> {
     // Ensure endpoint starts with / and base URL doesn't end with / to avoid double slashes
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const cleanBaseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-    const url = `${cleanBaseUrl}${cleanEndpoint}`;
+    let url = `${cleanBaseUrl}${cleanEndpoint}`;
+
+    // Append query parameters if any
+    if (options.params) {
+      const searchParams = new URLSearchParams();
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.append(key, String(value));
+        }
+      });
+      const queryString = searchParams.toString();
+      if (queryString) {
+        url += (url.includes('?') ? '&' : '?') + queryString;
+      }
+    }
 
     const headers: Record<string, string> = {
       'Accept': 'application/json',
@@ -43,11 +61,11 @@ class ApiClient {
     return data as T;
   }
 
-  public get<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  public get<T>(endpoint: string, options?: ApiRequestOptions): Promise<T> {
     return this.fetchApi<T>(endpoint, { ...options, method: 'GET' });
   }
 
-  public post<T>(endpoint: string, body: any, options?: RequestInit): Promise<T> {
+  public post<T>(endpoint: string, body: any, options?: ApiRequestOptions): Promise<T> {
     return this.fetchApi<T>(endpoint, {
       ...options,
       method: 'POST',
@@ -55,7 +73,7 @@ class ApiClient {
     });
   }
 
-  public put<T>(endpoint: string, body: any, options?: RequestInit): Promise<T> {
+  public put<T>(endpoint: string, body: any, options?: ApiRequestOptions): Promise<T> {
     return this.fetchApi<T>(endpoint, {
       ...options,
       method: 'PUT',
@@ -63,7 +81,7 @@ class ApiClient {
     });
   }
 
-  public delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  public delete<T>(endpoint: string, options?: ApiRequestOptions): Promise<T> {
     return this.fetchApi<T>(endpoint, { ...options, method: 'DELETE' });
   }
 }

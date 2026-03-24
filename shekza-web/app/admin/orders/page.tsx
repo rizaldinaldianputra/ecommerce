@@ -7,14 +7,17 @@ import { CrudTable } from '@/components/admin/crud-table';
 import { OrderService } from '@/services/order.service';
 import { Order, OrderStatus } from '@/types/order';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, Clock, CheckCircle2, Truck, XCircle, Package } from 'lucide-react';
+import { Eye, Clock, CheckCircle2, Truck, XCircle, Package, AlertCircle, RefreshCcw } from 'lucide-react';
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string, color: string, icon: any }> = {
   PENDING: { label: 'Pending', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', icon: Clock },
   PAID: { label: 'Paid', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', icon: CheckCircle2 },
-  SHIPPED: { label: 'Shipped', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: Truck },
+  PROCESSING: { label: 'Processing', color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400', icon: Clock },
+  DELIVERING: { label: 'Delivering', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: Truck },
   COMPLETED: { label: 'Completed', color: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400', icon: Package },
   CANCELLED: { label: 'Cancelled', color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400', icon: XCircle },
+  COMPLAINT: { label: 'Complaint', color: 'bg-amber-50 text-amber-600', icon: AlertCircle },
+  RETURNED: { label: 'Returned', color: 'bg-slate-100 text-slate-600', icon: RefreshCcw },
 };
 
 export default function OrdersPage() {
@@ -53,7 +56,7 @@ export default function OrdersPage() {
     {
       accessorKey: 'totalAmount',
       header: 'Total',
-      cell: ({ row }) => <span className="font-semibold">Rp {row.original.totalAmount.toLocaleString()}</span>,
+      cell: ({ row }) => <span className="font-bold">Rp {row.original.totalAmount.toLocaleString()}</span>,
     },
     {
       accessorKey: 'status',

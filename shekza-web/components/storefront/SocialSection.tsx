@@ -2,17 +2,36 @@
 
 import { motion } from 'framer-motion';
 import { Instagram, ShoppingBag, Eye, Heart } from 'lucide-react';
-
-const posts = [
-  { id: 1, image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=400', likes: '2.4K', product: 'Minimalist Tote' },
-  { id: 2, image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&q=80&w=400', likes: '1.8K', product: 'Platform Shoes' },
-  { id: 3, image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=400', likes: '3.1K', product: 'Spring Outfit' },
-  { id: 4, image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&q=80&w=400', likes: '987', product: 'Beauty Set' },
-  { id: 5, image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=400', likes: '4.2K', product: 'Pastel Hoodie' },
-  { id: 6, image: 'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?auto=format&fit=crop&q=80&w=400', likes: '1.1K', product: 'Leather Bag' },
-];
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { ContentService } from '@/services/content.service';
 
 export default function SocialSection() {
+  const [posts, setPosts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const sections = await ContentService.getActiveSectionsByType('SHOP_THE_LOOK');
+        if (sections.length > 0 && sections[0].items) {
+          const mapped = sections[0].items.map(item => ({
+            id: item.id,
+            image: item.imageUrl,
+            likes: item.badgeText || '0',
+            product: item.title,
+            link: item.linkUrl || '#'
+          }));
+          setPosts(mapped);
+        }
+      } catch (error) {
+        console.error('Failed to load social posts', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
   return (
     <section className="py-24 bg-neutral-50 relative overflow-hidden">
       {/* Decorative Text background */}
@@ -58,21 +77,22 @@ export default function SocialSection() {
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
 
-              {/* Interactive Overlay */}
-              <div className="absolute inset-0 bg-neutral-900/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center p-4">
-                <motion.div
-                  initial={{ scale: 0.8 }}
-                  whileInView={{ scale: 1 }}
-                  className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-pink-500 mb-4 shadow-xl"
-                >
-                  <ShoppingBag size={20} />
-                </motion.div>
-                <p className="text-white text-[11px] font-black uppercase tracking-widest mb-1">{post.product}</p>
-                <div className="flex items-center gap-3 text-white/80">
-                  <span className="text-[10px] font-bold flex items-center gap-1"><Heart size={10} className="fill-white" /> {post.likes}</span>
-                  <span className="text-[10px] font-bold flex items-center gap-1"><Eye size={10} /> View</span>
+              <Link href={post.link}>
+                <div className="absolute inset-0 bg-neutral-900/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center p-4">
+                  <motion.div
+                    initial={{ scale: 0.8 }}
+                    whileInView={{ scale: 1 }}
+                    className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-pink-500 mb-4 shadow-xl"
+                  >
+                    <ShoppingBag size={20} />
+                  </motion.div>
+                  <p className="text-white text-[11px] font-black uppercase tracking-widest mb-1">{post.product}</p>
+                  <div className="flex items-center gap-3 text-white/80">
+                    <span className="text-[10px] font-bold flex items-center gap-1"><Heart size={10} className="fill-white" /> {post.likes}</span>
+                    <span className="text-[10px] font-bold flex items-center gap-1"><Eye size={10} /> View</span>
+                  </div>
                 </div>
-              </div>
+              </Link>
 
               {/* Tag Badge */}
               <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-md border border-white/20 px-2 py-1 rounded-lg text-[8px] font-black text-white uppercase tracking-widest opacity-80 group-hover:opacity-0 transition-opacity">
