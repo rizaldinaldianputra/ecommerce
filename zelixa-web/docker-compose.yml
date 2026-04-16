@@ -1,0 +1,39 @@
+# Removed obsolete version line
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lawfirm-app
+    restart: always
+    ports:
+      - "3012:3000"
+
+    environment:
+      # Database components for specific logic
+      DB_USERNAME: rizaldi
+      DB_PASSWORD: "15031996"
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: lawfirm_db
+      DATABASE_URL: postgresql://rizaldi:15031996@postgres:5432/lawfirm_db
+      NEXTAUTH_URL: https://zelixa.my.id
+      NEXTAUTH_URL_INTERNAL: http://app:3000
+      NEXTAUTH_SECRET: zelixa-key-2026-v1
+      NEXTAUTH_TRUST_HOST: "true"
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: rizaldi
+      MINIO_SECRET_KEY: 15031996
+      MINIO_BUCKET: lawfirm
+      MINIO_USE_SSL: "false"
+
+      NEXT_PUBLIC_MINIO_URL: https://storage.zelixa.my.id
+
+    networks:
+      - global-network
+
+networks:
+  global-network:
+    external: true
