@@ -1,4 +1,5 @@
 import { apiClient } from './api.client';
+import { WorkflowTask } from './order-workflow.service';
 export type { WorkflowTask } from '@/types/order-workflow';
 
 class OrderWorkflowServiceClass {
