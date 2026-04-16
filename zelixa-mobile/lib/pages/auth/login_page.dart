@@ -36,10 +36,10 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  Future<void> _handleKeycloakLogin() async {
+  Future<void> _handleKeycloakLogin({String? idpHint}) async {
     setState(() => _isLoading = true);
     try {
-      final user = await _authService.loginWithKeycloak();
+      final user = await _authService.loginWithKeycloak(idpHint: idpHint);
       if (user != null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -144,19 +144,23 @@ class _LoginPageState extends State<LoginPage> {
 
                 CustomButton(
                   text: 'Sign in with Google',
-                  onPressed: _handleKeycloakLogin,
+                  onPressed: () => _handleKeycloakLogin(idpHint: 'google'),
                   isLoading: _isLoading,
                   color: Colors.white,
                   textColor: Colors.black87,
-                  icon: Image.asset(
-                    // ✅ FIXED
-                    'assets/google.png',
-                    height: 20,
-                  ),
+                  icon: Image.asset('assets/google.png', height: 20),
                 ),
 
                 const SizedBox(height: 16),
 
+                // CustomButton(
+                //   text: 'Login with WhatsApp',
+                //   onPressed: () => _handleKeycloakLogin(idpHint: 'whatsapp'),
+                //   isLoading: _isLoading,
+                //   color: const Color(0xFF25D366),
+                //   textColor: Colors.white,
+                //   icon: const Icon(Icons.phone, color: Colors.white, size: 20),
+                // ),
                 CustomButton(
                   text: 'Sign up with Email',
                   onPressed: () {},

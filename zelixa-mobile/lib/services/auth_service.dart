@@ -8,44 +8,88 @@ class AuthService {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   final CommonService _commonService = CommonService();
 
-  // Keycloak Configuration
-  static const String _clientId =
-      'zelixa-mobile'; // Confirm with your Keycloak client
-  static const String _redirectUrl = 'com.zelixa.app:/oauth2redirect';
-  static const String _issuer =
-      'http://localhost:8080/realms/zelixa'; // Update with your Keycloak URL
+  // ✅ FIXED CONFIG (SAMAKAN SEMUA)
+  static const String _clientId = 'mobile-app';
+  static const String _redirectUrl = 'com.zelixa.app://oauthredirect';
+  final _issuer =
+      "https://bacteriostatic-nonobligatorily-taunya.ngrok-free.dev/realms/zelixa";
 
-  Future<UserModel?> loginWithKeycloak() async {
+  /// 🔥 GOOGLE / KEYCLOAK LOGIN
+  Future<UserModel?> loginWithKeycloak({String? idpHint}) async {
     try {
-      final AuthorizationTokenResponse? result = await _appAuth
-          .authorizeAndExchangeCode(
-            AuthorizationTokenRequest(
-              _clientId,
-              _redirectUrl,
-              issuer: _issuer,
-              scopes: ['openid', 'profile', 'email', 'offline_access'],
-              promptValues: ['login'],
-            ),
-          );
+      final result = await _appAuth.authorizeAndExchangeCode(
+        AuthorizationTokenRequest(
+          _clientId,
+          _redirectUrl,
+          issuer: _issuer,
+          scopes: ['openid', 'profile', 'email'],
+          allowInsecureConnections: true, // Untuk HTTP local dev
+          additionalParameters: idpHint != null
+              ? {'kc_idp_hint': idpHint}
+              : null,
+        ),
+      );
 
       if (result != null && result.accessToken != null) {
-        // Log user info from Keycloak or fetch it from your backend's /me endpoint
-        // Send accessToken to backend if you need to exchange it or just use it as Bearer token
+        final token = result.accessToken!;
 
-        // Store the Keycloak access token
-        await _storage.write(key: 'auth_token', value: result.accessToken);
+        // 🔐 simpan token
+        await _storage.write(key: 'auth_token', value: token);
 
-        // Fetch user profile from backend to get internal User ID and roles
+        // 🔥 ambil user dari backend (token otomatis di-inject oleh interceptor)
         final response = await _commonService.get('/auth/me');
 
         if (response.statusCode == 200) {
-          final data = response.data['data'];
+          final data =
+              response.data['data']; // Ambil field 'data' dari ApiResponse
           return UserModel.fromJson(data);
         }
       }
       return null;
     } catch (e) {
       print('Keycloak Login error: $e');
+      return null;
+    }
+  }
+
+  // ==========================
+  // ✅ OTP WHATSAPP (TIDAK DIUBAH)
+  // ==========================
+
+  Future<bool> requestOtp(String phoneNumber) async {
+    try {
+      final response = await _commonService.post(
+        '/auth/otp/request',
+        data: {'phoneNumber': phoneNumber},
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Request OTP error: $e');
+      return false;
+    }
+  }
+
+  Future<UserModel?> verifyOtp(String phoneNumber, String code) async {
+    try {
+      final response = await _commonService.post(
+        '/auth/otp/login',
+        data: {'phoneNumber': phoneNumber, 'code': code},
+      );
+
+      if (response.statusCode == 200 && response.data['token'] != null) {
+        final token = response.data['token'];
+
+        await _storage.write(key: 'auth_token', value: token);
+
+        final userResponse = await _commonService.get('/auth/me');
+        if (userResponse.statusCode == 200) {
+          final data = userResponse.data;
+          return UserModel.fromJson(data);
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Verify OTP error: $e');
       return null;
     }
   }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 class HomePromoCarousel extends StatefulWidget {
@@ -8,7 +9,58 @@ class HomePromoCarousel extends StatefulWidget {
 }
 
 class _HomePromoCarouselState extends State<HomePromoCarousel> {
+  final PageController _controller = PageController();
   int _currentIndex = 0;
+  Timer? _timer;
+
+  final List<Map<String, dynamic>> promos = [
+    {
+      "title": "Summer Collection",
+      "subtitle": "Up to 40% OFF",
+      "tag": "New Arrival",
+      "color1": const Color(0xFF6A1B9A),
+      "color2": const Color(0xFFAB47BC),
+    },
+    {
+      "title": "Exclusive Watches",
+      "subtitle": "Starting at \$99",
+      "tag": "Limited Edition",
+      "color1": const Color(0xFF1A237E),
+      "color2": const Color(0xFF3949AB),
+    },
+    {
+      "title": "Flash Sale",
+      "subtitle": "Only Today!",
+      "tag": "Hot Deal",
+      "color1": const Color(0xFFD32F2F),
+      "color2": const Color(0xFFF44336),
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _startAutoSlide();
+  }
+
+  void _startAutoSlide() {
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      int nextPage = (_currentIndex + 1) % promos.length;
+
+      _controller.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,135 +68,122 @@ class _HomePromoCarouselState extends State<HomePromoCarousel> {
       children: [
         SizedBox(
           height: 200,
-          child: PageView(
+          child: PageView.builder(
+            controller: _controller,
+            itemCount: promos.length,
             onPageChanged: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
+              setState(() => _currentIndex = index);
             },
-            children: [
-              _buildPromoBannerContent(
-                title: 'Summer Collection',
-                subtitle: 'Up to 40% OFF',
-                tag: 'New Arrival',
-                color1: const Color(0xFF6A1B9A),
-                color2: const Color(0xFFAB47BC),
-              ),
-              _buildPromoBannerContent(
-                title: 'Exclusive Watches',
-                subtitle: 'Starting at \$99',
-                tag: 'Limited Edition',
-                color1: const Color(0xFF1A237E),
-                color2: const Color(0xFF3949AB),
-              ),
-            ],
+            itemBuilder: (context, index) {
+              final item = promos[index];
+              return _buildBanner(item);
+            },
           ),
         ),
         const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            2,
-            (index) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: _buildIndicator(_currentIndex == index),
-            ),
-          ),
-        ),
+        _buildIndicator(),
       ],
     );
   }
 
-  Widget _buildIndicator(bool isActive) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: isActive ? 16 : 6,
-      height: 6,
-      decoration: BoxDecoration(
-        color: isActive ? const Color(0xFF6A1B9A) : Colors.grey[300],
-        borderRadius: BorderRadius.circular(3),
-      ),
+  Widget _buildIndicator() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(promos.length, (index) {
+        bool isActive = _currentIndex == index;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: isActive ? 20 : 6,
+          height: 6,
+          decoration: BoxDecoration(
+            color: isActive ? Colors.deepPurple : Colors.grey[300],
+            borderRadius: BorderRadius.circular(3),
+          ),
+        );
+      }),
     );
   }
 
-  Widget _buildPromoBannerContent({
-    required String title,
-    required String subtitle,
-    required String tag,
-    required Color color1,
-    required Color color2,
-  }) {
+  Widget _buildBanner(Map<String, dynamic> item) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20), // <-- radius banner
+        borderRadius: BorderRadius.circular(20),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: Colors.grey.shade200),
+            gradient: LinearGradient(
+              colors: [item["color1"], item["color2"]],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
           child: Stack(
             children: [
               Positioned(
-                right: -40,
-                bottom: -40,
+                right: -30,
+                bottom: -30,
                 child: Icon(
-                  Icons.local_mall_outlined,
-                  size: 220,
-                  color: Colors.black.withOpacity(0.03),
+                  Icons.shopping_bag_outlined,
+                  size: 180,
+                  color: Colors.white.withOpacity(0.1),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        tag,
-                        style: TextStyle(
-                          color: color1,
+                        item["tag"],
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     Text(
-                      title,
+                      item["title"],
                       style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 26,
+                        color: Colors.white,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'Special Offer Just For You',
-                      style: TextStyle(
-                        color: Colors.grey,
+                    Text(
+                      item["subtitle"],
+                      style: const TextStyle(
+                        color: Colors.white70,
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
-                        color: color1,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: const Text(
-                        'Shop Now',
+                      child: Text(
+                        "Shop Now",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: item["color1"],
                           fontWeight: FontWeight.bold,
                         ),
                       ),

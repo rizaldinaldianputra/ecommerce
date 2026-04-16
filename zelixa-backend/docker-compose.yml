@@ -1,0 +1,123 @@
+version: "3.8"
+
+services:
+  waha:
+    restart: always
+    image: devlikeapro/waha
+    ports:
+      - "3001:3000"
+    environment:
+      - WHATSAPP_API_AUTHENTICATION=NONE
+      - WAHA_PRINT_QR=true
+    networks:
+      - zelixa-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: zelixa-postgres
+    environment:
+      POSTGRES_USER: shekza_user
+      POSTGRES_PASSWORD: shekza_password
+      POSTGRES_DB: shekza_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    networks:
+      - zelixa-network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: zelixa-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - zelixa-network
+
+  # MinIO
+  minio:
+    image: minio/minio
+    container_name: zelixa-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - zelixa-network
+
+  # Elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.1
+    container_name: zelixa-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    networks:
+      - zelixa-network
+
+  # Keycloak
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.4
+    container_name: zelixa-keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_DATABASE: shekza_db
+      KC_DB_USERNAME: shekza_user
+      KC_DB_PASSWORD: shekza_password
+      KC_HOSTNAME: bacteriostatic-nonobligatorily-taunya.ngrok-free.dev
+      KC_HOSTNAME_STRICT: false
+      KC_PROXY: edge
+      KC_HTTP_ENABLED: true
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev --import-realm
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak-realm.json:/opt/keycloak/data/import/realm.json
+    depends_on:
+      - postgres
+    networks:
+      - zelixa-network
+
+  # Spring Boot Backend (Optional to run here, or run locally)
+  # backend:
+  #   build: .
+  #   container_name: zelixa-backend
+  #   ports:
+  #     - "8081:8081"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #     - minio
+  #     - elasticsearch
+  #     - keycloak
+  #   networks:
+  #     - zelixa-network
+
+volumes:
+  pg-data:
+  redis-data:
+  minio-data:
+  es-data:
+
+networks:
+  zelixa-network:
+    driver: bridge

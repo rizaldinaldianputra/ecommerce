@@ -1,0 +1,56 @@
+app/(storefront)/addresses/page.tsx(14,23): error TS2459: Module '"@/services/auth.service"' declares 'AuthUser' locally, but it is not exported.
+app/(storefront)/orders/[id]/page.tsx(9,32): error TS2459: Module '"@/services/order-workflow.service"' declares 'WorkflowTask' locally, but it is not exported.
+app/(storefront)/profile/page.tsx(12,23): error TS2459: Module '"@/services/auth.service"' declares 'AuthUser' locally, but it is not exported.
+app/(storefront)/vouchers/page.tsx(11,106): error TS2353: Object literal may only specify known properties, and 'expiry' does not exist in type 'Voucher'.
+app/(storefront)/vouchers/page.tsx(12,115): error TS2353: Object literal may only specify known properties, and 'expiry' does not exist in type 'Voucher'.
+app/(storefront)/vouchers/page.tsx(13,102): error TS2353: Object literal may only specify known properties, and 'expiry' does not exist in type 'Voucher'.
+app/(storefront)/vouchers/page.tsx(14,107): error TS2353: Object literal may only specify known properties, and 'expiry' does not exist in type 'Voucher'.
+app/(storefront)/vouchers/page.tsx(58,103): error TS2339: Property 'type' does not exist on type 'Voucher'.
+app/(storefront)/vouchers/page.tsx(59,22): error TS2339: Property 'type' does not exist on type 'Voucher'.
+app/(storefront)/vouchers/page.tsx(62,40): error TS2339: Property 'type' does not exist on type 'Voucher'.
+app/(storefront)/vouchers/page.tsx(72,73): error TS2339: Property 'expiry' does not exist on type 'Voucher'.
+app/admin/banners/page.tsx(5,26): error TS2459: Module '"@/services/content.service"' declares 'ContentSection' locally, but it is not exported.
+app/admin/content-sections/[id]/page.tsx(6,26): error TS2459: Module '"@/services/content.service"' declares 'ContentSection' locally, but it is not exported.
+app/admin/content-sections/[id]/page.tsx(6,42): error TS2459: Module '"@/services/content.service"' declares 'ContentItem' locally, but it is not exported.
+app/admin/content-sections/page.tsx(5,26): error TS2459: Module '"@/services/content.service"' declares 'ContentSection' locally, but it is not exported.
+app/admin/content/mobile/[type]/page.tsx(6,26): error TS2459: Module '"@/services/content.service"' declares 'ContentSection' locally, but it is not exported.
+app/admin/content/web/[type]/page.tsx(6,26): error TS2459: Module '"@/services/content.service"' declares 'ContentSection' locally, but it is not exported.
+app/admin/customers/page.tsx(6,23): error TS2459: Module '"@/services/user.service"' declares 'User' locally, but it is not exported.
+app/admin/customers/page.tsx(10,24): error TS2307: Cannot find module 'date-fns' or its corresponding type declarations.
+app/admin/customers/page.tsx(38,18): error TS7006: Parameter 'r' implicitly has an 'any' type.
+app/admin/customers/page.tsx(88,35): error TS7006: Parameter 'role' implicitly has an 'any' type.
+app/admin/flash-sales/[id]/page.tsx(6,28): error TS2459: Module '"@/services/flash-sale.service"' declares 'FlashSale' locally, but it is not exported.
+app/admin/flash-sales/[id]/page.tsx(6,39): error TS2459: Module '"@/services/flash-sale.service"' declares 'FlashSaleItem' locally, but it is not exported.
+app/admin/flash-sales/page.tsx(5,28): error TS2459: Module '"@/services/flash-sale.service"' declares 'FlashSale' locally, but it is not exported.
+app/admin/news/[id]/page.tsx(6,23): error TS2459: Module '"@/services/news.service"' declares 'News' locally, but it is not exported.
+app/admin/news/page.tsx(5,23): error TS2459: Module '"@/services/news.service"' declares 'News' locally, but it is not exported.
+app/admin/notifications/new/page.tsx(5,31): error TS2459: Module '"@/services/notification.service"' declares 'PushNotificationRequest' locally, but it is not exported.
+app/admin/notifications/page.tsx(5,31): error TS2459: Module '"@/services/notification.service"' declares 'NotificationHistory' locally, but it is not exported.
+app/admin/orders/page.tsx(12,7): error TS2740: Type '{ PENDING: { label: string; color: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; }; ... 6 more ...; RETURNED: { ...; }; }' is missing the following properties from type 'Record<OrderStatus, { label: string; color: string; icon: any; }>': all, shipping, pending, processing, and 2 more.
+app/admin/orders/page.tsx(54,42): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
+      Type 'undefined' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number'.
+      Type 'undefined' is not assignable to type 'string | number'.
+app/admin/orders/page.tsx(59,58): error TS18048: 'row.original.totalAmount' is possibly 'undefined'.
+app/admin/settings/seo/[id]/page.tsx(5,22): error TS2459: Module '"@/services/seo.service"' declares 'SeoConfig' locally, but it is not exported.
+app/admin/settings/seo/new/page.tsx(5,22): error TS2459: Module '"@/services/seo.service"' declares 'SeoConfig' locally, but it is not exported.
+app/admin/settings/seo/page.tsx(5,22): error TS2459: Module '"@/services/seo.service"' declares 'SeoConfig' locally, but it is not exported.
+app/admin/stock/[id]/page.tsx(20,35): error TS2459: Module '"@/services/stock-transaction.service"' declares 'StockTransaction' locally, but it is not exported.
+app/admin/stock/[id]/page.tsx(20,53): error TS2459: Module '"@/services/stock-transaction.service"' declares 'StockSummary' locally, but it is not exported.
+app/admin/stock/history/page.tsx(6,35): error TS2459: Module '"@/services/stock-transaction.service"' declares 'StockTransaction' locally, but it is not exported.
+app/admin/users/[id]/page.tsx(6,23): error TS2459: Module '"@/services/user.service"' declares 'User' locally, but it is not exported.
+app/admin/users/page.tsx(5,23): error TS2459: Module '"@/services/user.service"' declares 'User' locally, but it is not exported.
+app/admin/users/page.tsx(64,43): error TS7006: Parameter 'r' implicitly has an 'any' type.
+app/admin/users/page.tsx(79,19): error TS7006: Parameter 'r' implicitly has an 'any' type.
+app/admin/users/page.tsx(107,35): error TS7006: Parameter 'role' implicitly has an 'any' type.
+components/admin/AdminSidebar.tsx(42,62): error TS2304: Cannot find name 'Tag'.
+components/admin/AdminSidebar.tsx(45,58): error TS2304: Cannot find name 'Gift'.
+components/ui/toaster.tsx(15,11): error TS2339: Property 'toasts' does not exist on type '{ toast: ({ title, description, variant }: ToastProps) => void; dismiss: (id?: string | undefined) => void; }'.
+components/ui/toaster.tsx(19,31): error TS7031: Binding element 'id' implicitly has an 'any' type.
+components/ui/toaster.tsx(19,35): error TS7031: Binding element 'title' implicitly has an 'any' type.
+components/ui/toaster.tsx(19,42): error TS7031: Binding element 'description' implicitly has an 'any' type.
+components/ui/toaster.tsx(19,55): error TS7031: Binding element 'action' implicitly has an 'any' type.
+components/ui/toaster.tsx(19,63): error TS7031: Binding element 'variant' implicitly has an 'any' type.

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "857296522927",
+    "project_id": "zelixa-7bbd1",
+    "storage_bucket": "zelixa-7bbd1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:857296522927:android:0a1fcfe35ceb29a2ef4e5a",
+        "android_client_info": {
+          "package_name": "com.zelixa.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHY6-mLlBK2rVYc5c-h24mlUYJzE3gNHM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

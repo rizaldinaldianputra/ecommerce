@@ -6,8 +6,6 @@ class CommonService {
   late Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  // Replace with your actual backend URL
-
   CommonService() {
     _dio = Dio(
       BaseOptions(
@@ -31,10 +29,7 @@ class CommonService {
           return handler.next(options);
         },
         onError: (DioException e, handler) {
-          // Handle common errors like 401 Unauthorized
-          if (e.response?.statusCode == 401) {
-            // Trigger logout or token refresh if needed
-          }
+          if (e.response?.statusCode == 401) {}
           return handler.next(e);
         },
       ),

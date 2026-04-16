@@ -7,174 +7,170 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // HEADER
-            Container(
-              padding: const EdgeInsets.only(top: 80, bottom: 40),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF6A1B9A), Color(0xFFAB47BC)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(30),
-                ),
-              ),
+      backgroundColor: const Color(0xFFF6F7FB),
+      body: Stack(
+        children: [
+          _buildHeader(),
+          SafeArea(
+            child: SingleChildScrollView(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const CircleAvatar(
-                    radius: 50,
-                    backgroundImage: NetworkImage(
-                      'https://i.pravatar.cc/150?u=zelixa',
-                    ),
-                  ),
+                  const SizedBox(height: 140),
+                  _buildProfileCard(),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Zelixa User',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'user@zelixa.com',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                  const SizedBox(height: 24),
-                  // Stats
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildStatItem('Orders', '12'),
-                      _buildStatItem('Wishlist', '8'),
-                      _buildStatItem('Points', '320'),
-                    ],
-                  ),
+                  _buildQuickActions(),
+                  const SizedBox(height: 16),
+                  _buildMenuSection(context),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // MENU CARDS
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  _buildMenuCard(
-                    context,
-                    Icons.shopping_bag_outlined,
-                    'My Orders',
-                    onTap: () => context.push('/order'),
-                  ),
-                  _buildMenuCard(
-                    context,
-                    Icons.favorite_outline,
-                    'Wishlist',
-                    badgeCount: 3,
-                    onTap: () {},
-                  ),
-                  _buildMenuCard(
-                    context,
-                    Icons.location_on_outlined,
-                    'Shipping Address',
-                    onTap: () => context.push('/address-list'),
-                  ),
-                  const SizedBox(height: 20),
-                  _buildMenuCard(context, Icons.settings_outlined, 'Settings'),
-                  _buildMenuCard(context, Icons.help_outline, 'Help Center'),
-                  _buildMenuCard(
-                    context,
-                    Icons.logout,
-                    'Logout',
-                    isDanger: true,
-                  ),
-                ],
-              ),
-            ),
-          ],
+  // HEADER GRADIENT
+  Widget _buildHeader() {
+    return Container(
+      height: 180,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF7B1FA2), Color(0xFFBA68C8)],
         ),
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String count) {
+  // PROFILE CARD FLOATING
+  Widget _buildProfileCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          const CircleAvatar(
+            radius: 35,
+            backgroundImage: NetworkImage('https://i.pravatar.cc/150?u=zelixa'),
+          ),
+          const SizedBox(width: 16),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Zelixa User',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 4),
+                Text('user@zelixa.com', style: TextStyle(color: Colors.grey)),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepPurple,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () {},
+            child: const Text("Edit", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // QUICK ACTION (ecommerce feel)
+  Widget _buildQuickActions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _quickItem(Icons.shopping_bag, "Orders"),
+          _quickItem(Icons.favorite, "Wishlist"),
+          _quickItem(Icons.local_shipping, "Tracking"),
+          _quickItem(Icons.star, "Points"),
+        ],
+      ),
+    );
+  }
+
+  Widget _quickItem(IconData icon, String label) {
     return Column(
       children: [
-        Text(
-          count,
-          style: const TextStyle(
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
             color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(color: Colors.black12.withOpacity(0.05), blurRadius: 6),
+            ],
           ),
+          child: Icon(icon, color: Colors.deepPurple),
         ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
-        ),
+        const SizedBox(height: 6),
+        Text(label, style: const TextStyle(fontSize: 12)),
       ],
     );
   }
 
-  Widget _buildMenuCard(
+  // MENU SECTION
+  Widget _buildMenuSection(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          _menuItem(
+            context,
+            Icons.shopping_bag,
+            "My Orders",
+            () => context.push('/order'),
+          ),
+          _menuItem(
+            context,
+            Icons.location_on,
+            "Address",
+            () => context.push('/address-list'),
+          ),
+          _menuItem(context, Icons.settings, "Settings", () {}),
+          _menuItem(context, Icons.help, "Help Center", () {}),
+          const SizedBox(height: 10),
+          _menuItem(context, Icons.logout, "Logout", () {}, isDanger: true),
+        ],
+      ),
+    );
+  }
+
+  Widget _menuItem(
     BuildContext context,
     IconData icon,
-    String title, {
+    String title,
+    VoidCallback onTap, {
     bool isDanger = false,
-    int badgeCount = 0,
-    VoidCallback? onTap,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: ListTile(
-        leading: Stack(
-          children: [
-            Icon(
-              icon,
-              color: isDanger ? Colors.red : Colors.deepPurple,
-              size: 28,
-            ),
-            if (badgeCount > 0)
-              Positioned(
-                right: -4,
-                top: -4,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '$badgeCount',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
+        leading: Icon(icon, color: isDanger ? Colors.red : Colors.deepPurple),
         title: Text(
           title,
           style: TextStyle(
@@ -182,7 +178,7 @@ class ProfilePage extends StatelessWidget {
             color: isDanger ? Colors.red : Colors.black87,
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+        trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
       ),
     );

@@ -1,0 +1,108 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: zelixa
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/shekza_db}
+    username: ${DB_USERNAME:shekza_user}
+    password: ${DB_PASSWORD:shekza_password}
+    driver-class-name: org.postgresql.Driver
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: UTC
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URL:http://localhost:9200}
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: ${KEYCLOAK_CLIENT_ID:spring-boot-app}
+            client-secret: ${KEYCLOAK_CLIENT_SECRET:IGlCCKQq7utrfCe3kBgIUwnuA9n0Qpxu}
+            scope:
+              - openid
+              - email
+              - profile
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          keycloak:
+            authorization-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/zelixa}/protocol/openid-connect/auth
+            token-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/zelixa}/protocol/openid-connect/token
+            user-info-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/zelixa}/protocol/openid-connect/userinfo
+            jwk-set-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/zelixa}/protocol/openid-connect/certs
+            user-name-attribute: preferred_username
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:noreply@zelixa.com}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  minio:
+    url: ${MINIO_URL:http://localhost:9000}
+    access-key: ${MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${MINIO_SECRET_KEY:minioadmin}
+    bucket: ${MINIO_BUCKET:shekza-bucket}
+
+  rajaongkir:
+    api-key: ${RAJAONGKIR_API_KEY:ff2e84e26f6372bc0f05af7d6a08b4c4}
+    base-url: ${RAJAONGKIR_BASE_URL:https://rajaongkir.komerce.id/api/v1/calculate/domestic-cost}
+
+  midtrans:
+    merchant-id: ${MIDTRANS_MERCHANT_ID:G404512774}
+    server-key: ${MIDTRANS_SERVER_KEY:SB-Mid-server-ZKLolOiZGtgd0ixvlEKjbZVb}
+    client-key: ${MIDTRANS_CLIENT_KEY:SB-Mid-client-TujjGaeNHOZqNeQJ}
+    is-production: ${MIDTRANS_IS_PRODUCTION:false}
+
+  firebase:
+    config-path: ${FIREBASE_CONFIG_PATH:firebase-service-account.json}
+
+  waha:
+    base-url: ${WAHA_BASE_URL:http://localhost:3001}
+    session: ${WAHA_SESSION:default}
+
+camunda:
+  bpm:
+    admin-user:
+      id: admin
+      password: ${CAMUNDA_ADMIN_PASSWORD:admin}
+    filter:
+      create: All Tasks
+    database:
+      type: postgres
+      schema-update: true
+    job-execution:
+      enabled: true

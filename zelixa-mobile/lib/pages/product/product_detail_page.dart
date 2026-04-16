@@ -444,7 +444,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ),
                       const SizedBox(height: 16),
                       _buildReviewItem(
-                        'Shekza Zelixa',
+                        'Zelixa',
                         'Packing rapih, barang sampai tepat waktu. Kualitas premium banget sesuai harga.',
                         4.5,
                         'https://i.pravatar.cc/150?u=shekza',
