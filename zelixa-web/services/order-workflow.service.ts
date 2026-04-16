@@ -1,5 +1,5 @@
 import { apiClient } from './api.client';
-import { WorkflowTask } from '@/types/order-workflow';
+export type { WorkflowTask } from '@/types/order-workflow';
 
 class OrderWorkflowServiceClass {
   private endpoint = '/workflow/orders';
