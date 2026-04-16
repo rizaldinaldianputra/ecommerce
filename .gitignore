@@ -5,7 +5,9 @@
 .env.*
 firebase-service-account.json
 *service-account*.json
-
+# Firebase credentials
+firebase.json
+*.json
 #################################
 # JAVA / SPRING
 #################################
