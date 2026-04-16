@@ -12,9 +12,12 @@ class SeoServiceClass extends BaseService<SeoConfig> {
       const response = await apiClient.get<any>(`${this.endpoint}/${pageName}`);
       return response.data ?? response;
     } catch (error: any) {
-      // If the config is not found, return null instead of throwing an error
-      // This is expected for pages that don't have specific SEO scripts yet.
-      if (error.message?.includes('not found') || error.message?.includes('404')) {
+      // If the config is not found or there is a network error (e.g. during build-time SSG)
+      // return null instead of throwing to prevent crashing the entire build.
+      const isNotFound = error.message?.includes('not found') || error.message?.includes('404');
+      const isNetworkError = error.isNetworkError || error.code === 'ECONNREFUSED' || error.message?.includes('fetch failed');
+      
+      if (isNotFound || isNetworkError) {
         return null;
       }
       throw error;

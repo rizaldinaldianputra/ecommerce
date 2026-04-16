@@ -52,10 +52,18 @@ class ApiClient {
       return await this.handleResponse<T>(response);
     } catch (error: any) {
       const isNetworkError = 
-        (error instanceof TypeError && (error.message === 'Failed to fetch' || error.message === 'fetch failed')) ||
-        (error?.code === 'ECONNREFUSED');
+        (error instanceof TypeError && (
+          error.message === 'Failed to fetch' || 
+          error.message === 'fetch failed' ||
+          error.message.includes('network error')
+        )) ||
+        (error?.code === 'ECONNREFUSED') ||
+        (error?.code === 'ENOTFOUND') ||
+        (error?.code === 'ETIMEDOUT');
 
       if (isNetworkError) {
+        // Tag the error so services can identify it as a network failure
+        error.isNetworkError = true;
         console.error(`[ApiClient] Network error: Unable to connect to ${url}. Is the backend server running?`, {
           message: error.message,
           code: error.code
