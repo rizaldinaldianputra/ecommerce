@@ -23,6 +23,7 @@ export default function UserManagementPage() {
   const [search, setSearch] = useState('');
   const { toast } = useToast();
   const router = useRouter();
+  const isMounted = useRef(false);
 
   // Edit State
   const [selectedUser, setSelectedUser] = useState<User | null>(null);

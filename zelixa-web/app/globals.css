@@ -35,6 +35,8 @@
 :root {
   --background: #ffffff;
   --foreground: #09090b;
+  --font-inter: 'Inter', system-ui, sans-serif;
+  --font-plus-jakarta: 'Plus Jakarta Sans', system-ui, sans-serif;
   color-scheme: light;
 }
 

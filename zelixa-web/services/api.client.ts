@@ -47,11 +47,26 @@ class ApiClient {
       }
     }
 
+    const controller = new AbortController();
+    // Use a very short timeout during build to prevent hanging the entire process
+    const isBuild = process.env.NODE_ENV === 'production' && typeof window === 'undefined';
+    const timeoutDuration = isBuild ? 3000 : 10000; 
+    const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+
     try {
-      const response = await fetch(url, { ...options, headers });
+      const response = await fetch(url, { 
+        ...options, 
+        headers,
+        signal: controller.signal 
+      });
+      clearTimeout(timeoutId);
       return await this.handleResponse<T>(response);
     } catch (error: any) {
+      clearTimeout(timeoutId);
+      
+      const isTimeout = error.name === 'AbortError';
       const isNetworkError = 
+        isTimeout ||
         (error instanceof TypeError && (
           error.message === 'Failed to fetch' || 
           error.message === 'fetch failed' ||

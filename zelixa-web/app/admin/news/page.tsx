@@ -89,6 +89,9 @@ export default function NewsManagementPage() {
     }
   };
 
+  const handleAdd = () => router.push('/admin/news/new');
+  const handleEdit = (item: News) => router.push(`/admin/news/${item.id}`);
+
   return (
     <div className="space-y-6">
       {/* Header */}

@@ -263,7 +263,9 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default function ContentSectionEditPage({ params }: PageProps) {
+import { Suspense } from 'react';
+
+function ContentSectionEditContent({ params }: PageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const typeParam = searchParams.get('type');
@@ -628,5 +630,17 @@ export default function ContentSectionEditPage({ params }: PageProps) {
       </Form>
     </CrudForm>
     </div>
+  );
+}
+
+export default function ContentSectionEditPage({ params }: PageProps) {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+      </div>
+    }>
+      <ContentSectionEditContent params={params} />
+    </Suspense>
   );
 }

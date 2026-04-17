@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { ClipboardList, CheckCircle2, XCircle, Truck, MessageSquare, AlertCircle, Search, RefreshCw, User, Package, Calendar, ArrowRight } from 'lucide-react';
 import { OrderWorkflowService } from '@/services/order-workflow.service';
 import { WorkflowTask } from '@/types/order-workflow';

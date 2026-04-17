@@ -12,7 +12,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { ContentSection } from '@/types/content';
 
-export default function ContentSectionsPage() {
+import { Suspense } from 'react';
+
+function ContentSectionsContent() {
   const [sections, setSections] = useState<ContentSection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -166,5 +168,17 @@ export default function ContentSectionsPage() {
         isLoading={isLoading}
       />
     </div>
+  );
+}
+
+export default function ContentSectionsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+      </div>
+    }>
+      <ContentSectionsContent />
+    </Suspense>
   );
 }

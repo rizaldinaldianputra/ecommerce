@@ -8,6 +8,12 @@ class SeoServiceClass extends BaseService<SeoConfig> {
   }
 
   async getByPageName(pageName: string): Promise<SeoConfig | null> {
+    // During build, if the backend is not reachable, we skip SEO script injection
+    // to prevent the build from hanging due to network timeouts.
+    if (process.env.NODE_ENV === 'production' && typeof window === 'undefined' && !process.env.NEXT_PUBLIC_API_URL) {
+      return null;
+    }
+
     try {
       const response = await apiClient.get<any>(`${this.endpoint}/${pageName}`);
       return response.data ?? response;

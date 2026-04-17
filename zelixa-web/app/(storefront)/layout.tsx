@@ -4,6 +4,8 @@ import ChatFAB from '@/components/storefront/ChatFAB';
 import StorefrontAesthetic from '@/components/storefront/StorefrontAesthetic';
 import SeoScript from '@/components/storefront/SeoScript';
 
+export const dynamic = 'force-dynamic';
+
 export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen relative bg-white selection:bg-pink-100 selection:text-pink-600">

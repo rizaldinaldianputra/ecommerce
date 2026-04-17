@@ -95,6 +95,9 @@ export default function FlashSalesPage() {
     }
   };
 
+  const handleAdd = () => router.push('/admin/flash-sales/new');
+  const handleEdit = (item: FlashSale) => router.push(`/admin/flash-sales/${item.id}`);
+
   return (
     <div className="space-y-6">
       {/* Header */}
