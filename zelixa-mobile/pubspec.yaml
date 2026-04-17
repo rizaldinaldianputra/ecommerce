@@ -46,6 +46,7 @@ dependencies:
   shimmer: ^3.0.0
   timelines_plus: ^2.0.0
   toastification: ^3.0.3
+  url_launcher: ^6.3.0
   video_player: ^2.11.1
 
 dev_dependencies:

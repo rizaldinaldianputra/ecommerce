@@ -1,6 +1,6 @@
 import { ApiRequestOptions } from '@/types/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api';
+const API_BASE_URL = 'https://api.zelixa.my.id/api';
 
 /**
  * A standard, generic fetch wrapper for centralizing API communications.
@@ -50,25 +50,25 @@ class ApiClient {
     const controller = new AbortController();
     // Use a very short timeout during build to prevent hanging the entire process
     const isBuild = process.env.NODE_ENV === 'production' && typeof window === 'undefined';
-    const timeoutDuration = isBuild ? 3000 : 10000; 
+    const timeoutDuration = isBuild ? 3000 : 10000;
     const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
     try {
-      const response = await fetch(url, { 
-        ...options, 
+      const response = await fetch(url, {
+        ...options,
         headers,
-        signal: controller.signal 
+        signal: controller.signal
       });
       clearTimeout(timeoutId);
       return await this.handleResponse<T>(response);
     } catch (error: any) {
       clearTimeout(timeoutId);
-      
+
       const isTimeout = error.name === 'AbortError';
-      const isNetworkError = 
+      const isNetworkError =
         isTimeout ||
         (error instanceof TypeError && (
-          error.message === 'Failed to fetch' || 
+          error.message === 'Failed to fetch' ||
           error.message === 'fetch failed' ||
           error.message.includes('network error')
         )) ||
@@ -91,7 +91,7 @@ class ApiClient {
   private async handleResponse<T>(response: Response): Promise<T> {
     const isJson = response.headers.get('content-type')?.includes('application/json');
     const text = await response.text();
-    
+
     // Safety check for empty body
     if (!text || response.status === 204) {
       if (!response.ok) {
@@ -119,7 +119,7 @@ class ApiClient {
           window.dispatchEvent(new Event('auth-change'));
         }
       }
-      
+
       const errorMessage = (data && typeof data === 'object') ? (data.message || data.error) : data;
       const finalMessage = errorMessage || `API Request failed with status ${response.status}: ${response.statusText}`;
       throw new Error(finalMessage);

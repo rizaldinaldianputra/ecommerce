@@ -1,43 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/app_style.dart';
 import 'package:go_router/go_router.dart';
+import '../../riverpod/cart_provider.dart';
+import '../../models/cart_model.dart';
 
-class CartPage extends StatefulWidget {
+class CartPage extends ConsumerStatefulWidget {
   const CartPage({super.key});
 
   @override
-  State<CartPage> createState() => _CartPageState();
+  ConsumerState<CartPage> createState() => _CartPageState();
 }
 
-class _CartPageState extends State<CartPage> {
-  // Mock data untuk keranjang
-  final List<Map<String, dynamic>> cartItems = [
-    {
-      'id': '1',
-      'title': 'Premium Casual Hoodie',
-      'brand': 'ZELIXA WEAR',
-      'price': 250000.0,
-      'image': 'https://picsum.photos/200/200?random=1',
-      'quantity': 1,
-      'size': 'L',
-      'color': 'Black',
-    },
-    {
-      'id': '2',
-      'title': 'Slim Fit Denim Jacket',
-      'brand': 'ZELIXA DENIM',
-      'price': 450000.0,
-      'image': 'https://picsum.photos/200/200?random=2',
-      'quantity': 1,
-      'size': 'M',
-      'color': 'Blue',
-    },
-  ];
+class _CartPageState extends ConsumerState<CartPage> {
 
-  double get subtotal => cartItems.fold(0, (sum, item) => sum + (item['price'] * item['quantity']));
+  @override
+  void initState() {
+    super.initState();
+    // Wait until build finishes to fetch the cart if needed, 
+    // though the notifier constructor calls fetchCart immediately.
+  }
 
   @override
   Widget build(BuildContext context) {
+    final cartState = ref.watch(cartProvider);
+    final subtotal = ref.watch(cartTotalProvider);
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -46,9 +34,11 @@ class _CartPageState extends State<CartPage> {
         elevation: 0,
         centerTitle: true,
       ),
-      body: cartItems.isEmpty 
-        ? _buildEmptyCart()
-        : Column(
+      body: cartState.when(
+        data: (cartItems) {
+          if (cartItems.isEmpty) return _buildEmptyCart();
+          
+          return Column(
             children: [
               Expanded(
                 child: ListView.builder(
@@ -56,17 +46,34 @@ class _CartPageState extends State<CartPage> {
                   itemCount: cartItems.length,
                   itemBuilder: (context, index) {
                     final item = cartItems[index];
-                    return _buildCartItem(item, index);
+                    return _buildCartItem(item);
                   },
                 ),
               ),
-              _buildCartFooter(),
+              _buildCartFooter(cartItems, subtotal),
+            ],
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.grey),
+              const SizedBox(height: 16),
+              Text('Error: $error', style: const TextStyle(color: Colors.red)),
+              TextButton(
+                onPressed: () => ref.read(cartProvider.notifier).fetchCart(),
+                child: const Text('Retry'),
+              ),
             ],
           ),
+        ),
+      ),
     );
   }
 
-  Widget _buildCartItem(Map<String, dynamic> item, int index) {
+  Widget _buildCartItem(CartItemResponse item) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(12),
@@ -77,13 +84,21 @@ class _CartPageState extends State<CartPage> {
       ),
       child: Row(
         children: [
-          // Checkbox (Mock)
-          Checkbox(value: true, onChanged: (val) {}, activeColor: AppColors.primary),
+          // Remove Button
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            onPressed: () {
+              ref.read(cartProvider.notifier).removeFromCart(item.id);
+            },
+          ),
           
           // Image
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.network(item['image'], width: 70, height: 70, fit: BoxFit.cover),
+            child: Image.network(
+              item.imageUrl.isNotEmpty ? item.imageUrl : 'https://picsum.photos/200', 
+              width: 70, height: 70, fit: BoxFit.cover,
+            ),
           ),
           const SizedBox(width: 12),
           
@@ -92,14 +107,14 @@ class _CartPageState extends State<CartPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item['title'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(item.productName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 4),
-                Text('${item['brand']} | ${item['size']}, ${item['color']}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                Text('${item.groupName} | ${item.size}, ${item.color}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Rp ${item['price'].toInt()}', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                    Text('Rp ${item.price.toInt()}', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
                     
                     // Quantity control
                     Container(
@@ -110,14 +125,18 @@ class _CartPageState extends State<CartPage> {
                       child: Row(
                         children: [
                           _buildQtyBtn(Icons.remove, () {
-                            if (item['quantity'] > 1) setState(() => item['quantity']--);
+                            if (item.quantity > 1) {
+                              ref.read(cartProvider.notifier).updateQuantity(item.id, item.quantity - 1);
+                            } else {
+                              ref.read(cartProvider.notifier).removeFromCart(item.id);
+                            }
                           }),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Text('${item['quantity']}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                            child: Text('${item.quantity}', style: const TextStyle(fontWeight: FontWeight.bold)),
                           ),
                           _buildQtyBtn(Icons.add, () {
-                            setState(() => item['quantity']++);
+                             ref.read(cartProvider.notifier).updateQuantity(item.id, item.quantity + 1);
                           }),
                         ],
                       ),
@@ -142,7 +161,7 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Widget _buildCartFooter() {
+  Widget _buildCartFooter(List<CartItemResponse> cartItems, double subtotal) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 34),
       decoration: BoxDecoration(
@@ -151,13 +170,13 @@ class _CartPageState extends State<CartPage> {
       ),
       child: Row(
         children: [
-          const Column(
+          Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Total Harga', style: TextStyle(fontSize: 12, color: Colors.grey)),
+              const Text('Total Harga', style: TextStyle(fontSize: 12, color: Colors.grey)),
               const SizedBox(height: 4),
-              Text('Rp 700.000', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text('Rp ${subtotal.toInt()}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ],
           ),
           const Spacer(),
@@ -165,16 +184,9 @@ class _CartPageState extends State<CartPage> {
             width: 160,
             child: ElevatedButton(
               onPressed: () {
-                // Navigate to Checkout with first item as mock
-                context.push('/checkout', extra: {
-                  'title': cartItems[0]['title'],
-                  'price': cartItems[0]['price'],
-                  'image': cartItems[0]['image'],
-                  'quantity': cartItems[0]['quantity'],
-                  'size': cartItems[0]['size'],
-                  'color': cartItems[0]['color'],
-                  'brand': cartItems[0]['brand'],
-                });
+                // Navigate to Checkout page with items and total.
+                // Assuming /checkout route handles reading cart list dynamically or passed as extra
+                context.push('/checkout');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,

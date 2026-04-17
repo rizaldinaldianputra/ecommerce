@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../components/card_widget.dart';
 import '../../components/home/home_app_bar.dart';
 import '../../components/home/home_search_bar.dart';
@@ -7,12 +8,15 @@ import '../../components/home/home_category_icons.dart';
 import '../../components/home/home_flash_sale.dart';
 import '../../components/home/home_trending_list.dart';
 import '../../components/home/home_section_title.dart';
+import '../../riverpod/home_provider.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final recommendedAsync = ref.watch(homeRecommendedProvider);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       body: CustomScrollView(
@@ -66,33 +70,51 @@ class HomePage extends StatelessWidget {
             ),
           ),
           // Featured products grid
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 0.55,
-              ),
-              delegate: SliverChildBuilderDelegate((context, index) {
-                return ProductCard(
-                  image: 'https://picsum.photos/300?random=$index',
-                  title: 'Premium Outfit $index',
-                  brand: 'Zelixa',
-                  price: 150000 + (index * 20000),
-                  originalPrice: 200000 + (index * 20000),
-                  rating: 4.5,
-                  description: 'Premium Outfit $index',
-                  sizes: const ['S', 'M', 'L', 'XL'],
-                  colorHexes: const [
-                    '#FF5733',
-                    '#33FF57',
-                    '#3357FF',
-                    '#F1C40F',
-                  ],
-                );
-              }, childCount: 6),
+          recommendedAsync.when(
+            data: (products) {
+              if (products.isEmpty) {
+                return const SliverToBoxAdapter(child: SizedBox.shrink());
+              }
+              return SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 0.55,
+                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final product = products[index];
+                    final imageUrl = (product.images != null && product.images!.isNotEmpty) 
+                        ? product.images!.first 
+                        : (product.imageUrl ?? 'https://picsum.photos/300?random=$index');
+                        
+                    return ProductCard(
+                      image: imageUrl,
+                      title: product.name,
+                      brand: product.brandId?.toString() ?? 'Zelixa',
+                      price: product.price,
+                      originalPrice: product.discountPrice != null ? product.price : product.price * 1.2,
+                      rating: 4.5,
+                      description: product.shortDescription ?? product.description,
+                      sizes: const ['S', 'M', 'L', 'XL'],
+                      colorHexes: const [
+                        '#FF5733',
+                        '#33FF57',
+                        '#3357FF',
+                        '#F1C40F',
+                      ],
+                    );
+                  }, childCount: products.length),
+                ),
+              );
+            },
+            loading: () => const SliverToBoxAdapter(
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            error: (error, _) => const SliverToBoxAdapter(
+              child: Center(child: Icon(Icons.error_outline)),
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 120)),
@@ -101,3 +123,4 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+

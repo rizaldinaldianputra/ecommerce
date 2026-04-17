@@ -31,10 +31,7 @@ class AppRouter {
       GoRoute(path: '/', builder: (context, state) => const MainPage()),
       GoRoute(
         path: '/checkout',
-        builder: (context, state) {
-          final checkoutData = state.extra as Map<String, dynamic>;
-          return CheckoutPage(checkoutData: checkoutData);
-        },
+        builder: (context, state) => const CheckoutPage(),
       ),
       GoRoute(
         path: '/order-detail',
