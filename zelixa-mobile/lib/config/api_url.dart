@@ -1,1 +1,1 @@
-const String baseUrl = 'http://192.168.1.3:8081/api/v1';
+const String baseUrl = 'https://api.zelixa.my.id/api/v1';
