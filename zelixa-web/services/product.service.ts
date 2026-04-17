@@ -88,9 +88,11 @@ class ProductServiceClass extends BaseService<Product> {
     return response.data?.content ? response.data : response;
   }
 
+  /*
   async searchProductsElastic(q: string, size = 12, page = 0): Promise<PaginatedResponse<Product>> {
     return apiClient.get<PaginatedResponse<Product>>(`${this.endpoint}/search`, { params: { q, size, page } });
   }
+  */
 }
 
 export const ProductService = new ProductServiceClass();

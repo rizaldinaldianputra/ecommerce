@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import com.zelixa.zelixa.security.CustomUserDetails;
@@ -41,9 +40,6 @@ public class AuthController {
             String email = ((CustomUserDetails) principal).getUsername();
             return ResponseEntity.ok(ApiResponse.success("User profile fetched successfully",
                     authService.getMe(email)));
-        } else if (principal instanceof Jwt) {
-            return ResponseEntity.ok(ApiResponse.success("User profile fetched successfully",
-                    authService.syncUserFromJwt((Jwt) principal)));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.error(401, "Token is missing or invalid"));

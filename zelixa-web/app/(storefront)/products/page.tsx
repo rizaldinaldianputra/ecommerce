@@ -82,13 +82,13 @@ function ProductsContent() {
         const isSearchRequested = debouncedSearchTerm.trim() !== '';
         
         if (isSearchRequested) {
-          // If searching, we use searchProductsElastic (or it will fallback in backend)
-          let queryStr = debouncedSearchTerm;
-          if (activeCategory && activeCategory !== 'All') {
-            // We can still pass category name in query for Elastic
-            queryStr = `${queryStr} catId:${activeCategory}`;
-          }
-          response = await ProductService.searchProductsElastic(queryStr, 24, 0);
+          // Fallback to standard search while Elastic is disabled
+          // let queryStr = debouncedSearchTerm;
+          // if (activeCategory && activeCategory !== 'All') {
+          //   queryStr = `${queryStr} catId:${activeCategory}`;
+          // }
+          // response = await ProductService.searchProductsElastic(queryStr, 24, 0);
+          response = await ProductService.getAll(0, 24, debouncedSearchTerm, activeCategory || undefined);
         } else {
           // If not searching, use getAll with categoryId filter
           response = await ProductService.getAll(0, 24, '', activeCategory || undefined);
@@ -133,7 +133,7 @@ function ProductsContent() {
           </div>
           <input
             type="text"
-            placeholder="Search using Elastic..."
+            placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-10 py-4 bg-white border border-neutral-100 rounded-2xl text-sm font-bold focus:ring-2 ring-pink-400 transition-all shadow-xl shadow-black/5"

@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -109,76 +108,6 @@ public class AuthService {
         String token = jwtUtil.generateToken(userDetails);
 
         return mapToAuthResponse(user, token);
-    }
-
-    @Transactional
-    public AuthResponse syncUserFromJwt(Jwt jwt) {
-        String email = jwt.getClaimAsString("email");
-        String phoneNumber = jwt.getClaimAsString("phone_number");
-        String name = jwt.getClaimAsString("name");
-        String givenName = jwt.getClaimAsString("given_name");
-        String familyName = jwt.getClaimAsString("family_name");
-        String picture = jwt.getClaimAsString("picture");
-
-        if (email == null) {
-            email = jwt.getClaimAsString("preferred_username");
-        }
-
-        // If preferred_username is a phone number (common in Keycloak mobile flows)
-        if (phoneNumber == null && email != null && email.matches("\\+?[0-9]{10,15}")) {
-            phoneNumber = email;
-        }
-
-        if (name == null && givenName != null) {
-            name = givenName + (familyName != null ? " " + familyName : "");
-        }
-        if (name == null) {
-            name = email;
-        }
-
-        final String finalEmail = email;
-        final String finalPhoneNumber = phoneNumber;
-        final String finalName = name;
-        final String finalPicture = picture;
-
-        // Try to find by email first, then by phone
-        User user = userRepository.findByEmail(finalEmail)
-                .or(() -> finalPhoneNumber != null ? userRepository.findByPhoneNumber(finalPhoneNumber) : java.util.Optional.empty())
-                .orElseGet(() -> {
-                    Role userRole = roleRepository.findByName("ROLE_USER").orElseGet(() -> {
-                        Role newRole = new Role();
-                        newRole.setName("ROLE_USER");
-                        return roleRepository.save(newRole);
-                    });
-
-                    User newUser = User.builder()
-                            .email(finalEmail.contains("@") ? finalEmail : finalEmail + "@zelixa.com")
-                            .phoneNumber(finalPhoneNumber)
-                            .fullName(finalName)
-                            .profilePicture(finalPicture)
-                            .password("") // OAuth2 users don't have local passwords
-                            .roles(Collections.singleton(userRole))
-                            .isActive(true)
-                            .build();
-                    return userRepository.save(newUser);
-                });
-
-        // Update profile if changed
-        boolean updated = false;
-        if (user.getFullName() == null || !user.getFullName().equals(finalName)) {
-            user.setFullName(finalName);
-            updated = true;
-        }
-        if (finalPicture != null
-                && (user.getProfilePicture() == null || !user.getProfilePicture().equals(finalPicture))) {
-            user.setProfilePicture(finalPicture);
-            updated = true;
-        }
-        if (updated) {
-            userRepository.save(user);
-        }
-
-        return mapToAuthResponse(user, null);
     }
 
     public AuthResponse getMe(String email) {

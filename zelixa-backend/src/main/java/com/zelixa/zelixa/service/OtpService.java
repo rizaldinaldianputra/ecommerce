@@ -14,7 +14,6 @@ import java.util.Random;
 public class OtpService {
 
     private final StringRedisTemplate redisTemplate;
-    private final WahaService wahaService;
 
     private static final String OTP_PREFIX = "OTP:";
     private static final int OTP_EXPIRY_MINUTES = 5;
@@ -30,13 +29,15 @@ public class OtpService {
             normalizedPhone = "62" + normalizedPhone; // Fallback to 62 if no country code
         }
         
-        // Store in Redis with TTL using original phoneNumber (or normalized, but consistency is key)
+        // Store in Redis with TTL using original phoneNumber
         redisTemplate.opsForValue().set(OTP_PREFIX + phoneNumber, code, Duration.ofMinutes(OTP_EXPIRY_MINUTES));
         
-        String message = "*Zelixa Authentication*\n\nYour verification code is: *" + code + "*\nValid for " + OTP_EXPIRY_MINUTES + " minutes.\n\nPlease do not share this code with anyone.";
-        wahaService.sendText(normalizedPhone, message);
+        // WAHA is disabled, so we only log the OTP for now
+        log.info("**************************************************");
+        log.info("OTP GENERATED FOR {}: {}", phoneNumber, code);
+        log.info("WhatsApp notification skipped (WAHA disabled)");
+        log.info("**************************************************");
         
-        log.info("Generated OTP for {}: {}", phoneNumber, code);
         return code;
     }
 

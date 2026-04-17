@@ -33,7 +33,6 @@ public class ProductService {
     private final ProductVariantRepository variantRepository;
     private final ProductImageRepository imageRepository;
     private final StockTransactionRepository transactionRepository;
-    private final ProductSearchService productSearchService;
 
     @Transactional
     public ProductResponse createProduct(ProductRequest request) {
@@ -151,8 +150,6 @@ public class ProductService {
         }
 
         ProductResponse resp = mapToResponse(savedProduct);
-        // Also index asynchronously into Elasticsearch
-        productSearchService.indexProduct(savedProduct);
         return resp;
     }
 
@@ -288,7 +285,6 @@ public class ProductService {
         }
 
         ProductResponse resp = mapToResponse(updatedProduct);
-        productSearchService.indexProduct(updatedProduct);
         return resp;
     }
 
@@ -306,18 +302,11 @@ public class ProductService {
 
     public Page<ProductResponse> getAllProducts(int page, int size, String search, Long categoryId) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductResponse> elasticResults = null;
 
         // 1. Try Category + Search or Category only
         if (categoryId != null) {
             if (search != null && !search.trim().isEmpty()) {
-                // Try combined search in Elastic first
-                elasticResults = productSearchService.searchProducts(search + " catId:" + categoryId, pageable);
-                if (elasticResults == null || elasticResults.isEmpty()) {
-                    // Fallback to DB
-                    return productRepository.findByCategoryIdAndNameContainingIgnoreCase(categoryId, search, pageable).map(this::mapToResponse);
-                }
-                return elasticResults;
+                return productRepository.findByCategoryIdAndNameContainingIgnoreCase(categoryId, search, pageable).map(this::mapToResponse);
             } else {
                 return productRepository.findByCategoryId(categoryId, pageable).map(this::mapToResponse);
             }
@@ -325,13 +314,7 @@ public class ProductService {
 
         // 2. Try General Search
         if (search != null && !search.trim().isEmpty()) {
-            elasticResults = productSearchService.searchProducts(search, pageable);
-            if (elasticResults == null || elasticResults.isEmpty()) {
-                // FALLBACK: If elastic return 0, try DB search
-                log.info("Elasticsearch returned no results for '{}', falling back to DB", search);
-                return productRepository.searchProducts(search, pageable).map(this::mapToResponse);
-            }
-            return elasticResults;
+            return productRepository.searchProducts(search, pageable).map(this::mapToResponse);
         }
 
         // 3. Just All Products
@@ -362,23 +345,6 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
         productRepository.delete(product);
-        productSearchService.deleteProductFromIndex(id);
-    }
-
-    /**
-     * Elasticsearch-powered full-text search
-     */
-    public Page<ProductResponse> searchProductsElastic(String query, Pageable pageable) {
-        return productSearchService.searchProducts(query, pageable);
-    }
-
-    /**
-     * Re-index all products into Elasticsearch (admin operation)
-     */
-    public void reindexAllProducts() {
-        List<Product> all = productRepository.findAll();
-        productSearchService.reindexAll(all);
-        log.info("Re-indexed {} products", all.size());
     }
 
     public List<ProductResponse> getProductsByIds(List<Long> ids) {

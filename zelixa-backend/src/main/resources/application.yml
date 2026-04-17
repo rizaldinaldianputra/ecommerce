@@ -30,33 +30,8 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
 
-  elasticsearch:
-    uris: ${ELASTICSEARCH_URL:http://localhost:9200}
 
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
 
-  security:
-    oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: ${KEYCLOAK_CLIENT_ID:spring-boot-app}
-            client-secret: ${KEYCLOAK_CLIENT_SECRET:IGlCCKQq7utrfCe3kBgIUwnuA9n0Qpxu}
-            scope:
-              - openid
-              - email
-              - profile
-            authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-        provider:
-          keycloak:
-            authorization-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/zelixa}/protocol/openid-connect/auth
-            token-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/zelixa}/protocol/openid-connect/token
-            user-info-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/zelixa}/protocol/openid-connect/userinfo
-            jwk-set-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/zelixa}/protocol/openid-connect/certs
-            user-name-attribute: preferred_username
 
   mail:
     host: smtp.gmail.com
@@ -90,9 +65,6 @@ app:
   firebase:
     config-path: ${FIREBASE_CONFIG_PATH:firebase-service-account.json}
 
-  waha:
-    base-url: ${WAHA_BASE_URL:http://localhost:3001}
-    session: ${WAHA_SESSION:default}
 
 camunda:
   bpm:

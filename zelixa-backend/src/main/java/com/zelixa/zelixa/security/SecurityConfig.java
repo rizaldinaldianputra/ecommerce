@@ -17,8 +17,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import java.util.List;
 
 @Configuration
@@ -28,10 +26,8 @@ import java.util.List;
 public class SecurityConfig {
 
         private final JwtAuthenticationFilter jwtAuthFilter;
-        private final OAuth2SuccessHandler oAuth2SuccessHandler;
         private final UserDetailsService userDetailsService;
         private final PasswordEncoder passwordEncoder;
-        private final ClientRegistrationRepository clientRegistrationRepository;
 
         @Bean
         public DaoAuthenticationProvider authenticationProvider() {
@@ -60,8 +56,7 @@ public class SecurityConfig {
                                                 .requestMatchers(
                                                                 "/api/v1/auth/**",
                                                                 "/api/v1/admin/auth/**",
-                                                                "/login/**",
-                                                                "/oauth2/**")
+                                                                "/login/**")
                                                 .permitAll()
                                                 .requestMatchers(
                                                                 "/api/v1/products/**",
@@ -88,15 +83,7 @@ public class SecurityConfig {
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authenticationProvider(authenticationProvider())
-                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                                .oauth2Login(oauth2 -> oauth2
-                                                .authorizationEndpoint(authorization -> authorization
-                                                                .authorizationRequestResolver(
-                                                                                new CustomOAuth2AuthorizationRequestResolver(
-                                                                                                clientRegistrationRepository)))
-                                                .userInfoEndpoint(userInfo -> userInfo
-                                                                .userService(new DefaultOAuth2UserService()))
-                                                .successHandler(oAuth2SuccessHandler));
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
         }

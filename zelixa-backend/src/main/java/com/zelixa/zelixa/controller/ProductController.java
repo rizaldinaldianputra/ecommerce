@@ -40,19 +40,6 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts(pageable));
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<Page<ProductResponse>> searchProducts(
-            @RequestParam String q,
-            Pageable pageable) {
-        return ResponseEntity.ok(productService.searchProductsElastic(q, pageable));
-    }
-
-    @PostMapping("/reindex")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> reindexAll() {
-        productService.reindexAllProducts();
-        return ResponseEntity.ok().build();
-    }
 
     @GetMapping("/list")
     public ResponseEntity<List<ProductResponse>> getProductsByIds(@RequestParam List<Long> ids) {
