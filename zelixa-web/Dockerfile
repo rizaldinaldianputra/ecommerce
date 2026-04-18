@@ -20,9 +20,15 @@ COPY . .
 # Generate Prisma Client (sanity check to ensure generated code is fresh)
 RUN npx prisma generate
 
-# Build the Next.js application
 # Provide DATABASE_URL for build-time requirements (e.g. Prisma client)
 ENV DATABASE_URL="postgresql://rizaldi:15031996@postgres:5432/zelixa_db"
+
+# Bake environment variables into the Next.js bundle during build
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_STORAGE_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_STORAGE_URL=$NEXT_PUBLIC_STORAGE_URL
+
 RUN npm run build
 
 EXPOSE 3000

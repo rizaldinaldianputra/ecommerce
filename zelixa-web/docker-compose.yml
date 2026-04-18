@@ -5,7 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: lawfirm-app
+      args:
+        - NEXT_PUBLIC_API_URL=https://api.zelixa.my.id/api
+        - NEXT_PUBLIC_STORAGE_URL=https://storage.zelixa.my.id
+    container_name: zelixa-app
     restart: always
     ports:
       - "3012:3000"

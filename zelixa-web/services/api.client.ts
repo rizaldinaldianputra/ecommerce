@@ -1,6 +1,6 @@
 import { ApiRequestOptions } from '@/types/api';
 
-const API_BASE_URL = 'https://api.zelixa.my.id/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.zelixa.my.id/api';
 
 /**
  * A standard, generic fetch wrapper for centralizing API communications.
