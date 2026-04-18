@@ -48,7 +48,7 @@ export default function CategoriesPage() {
           <div className="h-10 w-10 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 group">
             {imageUrl ? (
               <img 
-                src={imageUrl.startsWith('http') ? imageUrl : `http://localhost:8081${imageUrl}`} 
+                src={imageUrl.startsWith('http') ? imageUrl : `https://api.zelixa.my.id${imageUrl}`} 
                 alt={row.original.name} 
                 className="h-full w-full object-cover transition-transform group-hover:scale-110"
                 onError={(e) => {

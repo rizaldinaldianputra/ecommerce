@@ -259,7 +259,7 @@ export function LoginForm() {
         type="button"
         variant="outline"
         className="w-full h-14 flex items-center justify-center gap-3 rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-transparent text-slate-700 dark:text-slate-300 font-bold text-sm shadow-sm hover:bg-slate-50 dark:hover:bg-white/5 transition duration-200 active:scale-95"
-        onClick={() => (window.location.href = 'http://localhost:8081/oauth2/authorization/keycloak?kc_idp_hint=google')}
+        onClick={() => (window.location.href = 'https://api.zelixa.my.id/oauth2/authorization/keycloak?kc_idp_hint=google')}
         disabled={isLoading}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48">

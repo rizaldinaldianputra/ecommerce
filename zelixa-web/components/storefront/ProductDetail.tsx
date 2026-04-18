@@ -18,7 +18,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   // Process images
   const images = useMemo(() => {
     const imgs = product.images && product.images.length > 0 ? product.images : [product.imageUrl || '/placeholder.png'];
-    return imgs.map(img => img.startsWith('http') ? img : `http://localhost:8081${img}`);
+    return imgs.map(img => img.startsWith('http') ? img : `https://api.zelixa.my.id${img}`);
   }, [product.images, product.imageUrl]);
 
   // Find the first valid selection

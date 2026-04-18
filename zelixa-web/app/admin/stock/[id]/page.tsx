@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useEffect, useState, use } from 'react';
-import { 
-  Package, 
-  ArrowLeft, 
-  History, 
-  PlusCircle, 
-  ArrowRightLeft, 
-  TrendingUp, 
-  TrendingDown, 
-  Calendar, 
+import {
+  Package,
+  ArrowLeft,
+  History,
+  PlusCircle,
+  ArrowRightLeft,
+  TrendingUp,
+  TrendingDown,
+  Calendar,
   User,
   ChevronLeft,
   ChevronRight,
@@ -17,7 +17,6 @@ import {
   LayoutGrid
 } from 'lucide-react';
 import { ProductService } from '@/services/product.service';
-import { StockTransactionService, StockTransaction, StockSummary } from '@/services/stock-transaction.service';
 import { Product, ProductVariant } from '@/types/product';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -41,11 +40,13 @@ interface PageProps {
 
 import { ColumnDef } from '@tanstack/react-table';
 import { CrudTable } from '@/components/admin/crud-table';
+import { StockTransactionService } from '@/services/stock-transaction.service';
+import { StockSummary, StockTransaction } from '@/types/stock';
 
 export default function ProductStockDetailPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const productId = parseInt(resolvedParams.id);
-  
+
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [summaries, setSummaries] = useState<Record<number, StockSummary>>({});
@@ -53,7 +54,7 @@ export default function ProductStockDetailPage({ params }: PageProps) {
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const [historyPage, setHistoryPage] = useState(0);
   const [historyTotalPages, setHistoryTotalPages] = useState(0);
-  
+
   const [activeTab, setActiveTab] = useState<'variants' | 'history'>('variants');
   const { toast } = useToast();
 
@@ -73,7 +74,7 @@ export default function ProductStockDetailPage({ params }: PageProps) {
       setIsLoading(true);
       const data = await ProductService.getById(productId);
       setProduct(data);
-      
+
       const variantIds = data.variants.map(v => v.id);
       if (variantIds.length > 0) {
         const summaryResults = await StockTransactionService.getSummaries(variantIds);
@@ -249,18 +250,18 @@ export default function ProductStockDetailPage({ params }: PageProps) {
       {/* Product Header */}
       <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-white/5 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-5">
-           <Package size={120} className="text-slate-900 dark:text-white" />
+          <Package size={120} className="text-slate-900 dark:text-white" />
         </div>
-        
+
         <div className="flex flex-col md:flex-row gap-8 items-start relative z-10">
           <div className="h-32 w-32 rounded-3xl bg-slate-50 dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-white/10 shrink-0 shadow-inner">
             {product.imageUrl ? (
-              <img src={product.imageUrl.startsWith('http') ? product.imageUrl : `http://localhost:8081${product.imageUrl}`} alt="" className="h-full w-full object-cover" />
+              <img src={product.imageUrl.startsWith('http') ? product.imageUrl : `https://api.zelixa.my.id${product.imageUrl}`} alt="" className="h-full w-full object-cover" />
             ) : (
               <div className="h-full w-full flex items-center justify-center text-slate-300"><Package size={40} /></div>
             )}
           </div>
-          
+
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <Link href="/admin/stock" className="text-pink-500 hover:text-pink-600 transition-colors">
@@ -286,13 +287,13 @@ export default function ProductStockDetailPage({ params }: PageProps) {
 
         {/* Tabs */}
         <div className="flex items-center gap-2 mt-10 p-1.5 bg-slate-50 dark:bg-white/5 rounded-2xl w-fit shadow-inner">
-          <button 
+          <button
             onClick={() => setActiveTab('variants')}
             className={`px-8 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === 'variants' ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-md ring-1 ring-slate-100 dark:ring-white/10' : 'text-slate-400 hover:text-slate-600'}`}
           >
             <LayoutGrid className="h-4 w-4" /> Variants List
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('history')}
             className={`px-8 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-md ring-1 ring-slate-100 dark:ring-white/10' : 'text-slate-400 hover:text-slate-600'}`}
           >
@@ -302,7 +303,7 @@ export default function ProductStockDetailPage({ params }: PageProps) {
       </div>
 
       {activeTab === 'variants' ? (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
         >
@@ -314,7 +315,7 @@ export default function ProductStockDetailPage({ params }: PageProps) {
           />
         </motion.div>
       ) : (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-2xl shadow-slate-200/50 dark:shadow-none overflow-hidden"
@@ -352,28 +353,26 @@ export default function ProductStockDetailPage({ params }: PageProps) {
                         <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-tight">{tx.sku}</span>
                       </td>
                       <td className="px-6 py-6 text-center">
-                        <Badge 
-                          variant="secondary" 
-                          className={`text-[9px] font-bold uppercase px-3 py-1 rounded-full ${
-                            tx.type === 'ADDITION' ? 'bg-emerald-50 text-emerald-600' : 
-                            tx.type === 'ADJUSTMENT' ? 'bg-blue-50 text-blue-600' : 
-                            tx.type === 'INITIAL' ? 'bg-slate-100 text-slate-600' : 'bg-rose-50 text-rose-600'
-                          }`}
+                        <Badge
+                          variant="secondary"
+                          className={`text-[9px] font-bold uppercase px-3 py-1 rounded-full ${tx.type === 'ADDITION' ? 'bg-emerald-50 text-emerald-600' :
+                              tx.type === 'ADJUSTMENT' ? 'bg-blue-50 text-blue-600' :
+                                tx.type === 'INITIAL' ? 'bg-slate-100 text-slate-600' : 'bg-rose-50 text-rose-600'
+                            }`}
                         >
                           {tx.type}
                         </Badge>
                       </td>
                       <td className="px-6 py-6 text-center">
-                        <span className={`text-lg font-bold ${
-                          tx.quantity > 0 ? 'text-emerald-600' : 
-                          tx.quantity < 0 ? 'text-rose-600' : 'text-slate-600'
-                        }`}>
+                        <span className={`text-lg font-bold ${tx.quantity > 0 ? 'text-emerald-600' :
+                            tx.quantity < 0 ? 'text-rose-600' : 'text-slate-600'
+                          }`}>
                           {tx.quantity > 0 ? `+${tx.quantity}` : tx.quantity}
                         </span>
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-2">
-                           <div className="h-7 w-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-white/10">
+                          <div className="h-7 w-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-white/10">
                             <User className="h-3.5 w-3.5 text-slate-400" />
                           </div>
                           <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-tighter">{tx.createdBy}</span>
@@ -391,7 +390,7 @@ export default function ProductStockDetailPage({ params }: PageProps) {
               </tbody>
             </table>
           </div>
-          
+
           {/* History Pagination */}
           {historyTotalPages > 1 && (
             <div className="p-6 border-t border-slate-50 dark:border-white/5 flex items-center justify-end gap-2">
@@ -429,7 +428,7 @@ export default function ProductStockDetailPage({ params }: PageProps) {
               Updating stock for variant <span className="text-pink-500">{selectedVariant?.sku}</span> ({selectedVariant?.size} / {selectedVariant?.color})
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="grid gap-6 py-6">
             <div className="grid gap-3">
               <Label htmlFor="amount" className="font-bold uppercase tracking-widest text-[10px] text-slate-400">
@@ -456,16 +455,16 @@ export default function ProductStockDetailPage({ params }: PageProps) {
           </div>
 
           <DialogFooter className="gap-3 sm:justify-start">
-            <Button 
-              className="bg-pink-500 hover:bg-pink-600 text-white rounded-2xl h-14 flex-1 font-bold uppercase tracking-widest shadow-lg shadow-pink-500/20" 
+            <Button
+              className="bg-pink-500 hover:bg-pink-600 text-white rounded-2xl h-14 flex-1 font-bold uppercase tracking-widest shadow-lg shadow-pink-500/20"
               onClick={handleAction}
               disabled={isActionLoading}
             >
               {isActionLoading ? 'Processing...' : 'Confirm Update'}
             </Button>
-            <Button 
-              variant="ghost" 
-              className="rounded-2xl h-14 px-8 font-bold uppercase text-[10px] text-slate-400" 
+            <Button
+              variant="ghost"
+              className="rounded-2xl h-14 px-8 font-bold uppercase text-[10px] text-slate-400"
               onClick={() => setModalType(null)}
             >
               Cancel
@@ -495,11 +494,10 @@ export default function ProductStockDetailPage({ params }: PageProps) {
               <div className="space-y-4">
                 {variantHistory.map((tx) => (
                   <div key={tx.id} className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 group hover:shadow-md transition-all">
-                    <div className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${
-                      tx.type === 'ADDITION' ? 'bg-emerald-100 text-emerald-600' : 
-                      tx.type === 'ADJUSTMENT' ? 'bg-blue-100 text-blue-600' : 
-                      tx.type === 'INITIAL' ? 'bg-slate-200 text-slate-600' : 'bg-rose-100 text-rose-600'
-                    }`}>
+                    <div className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${tx.type === 'ADDITION' ? 'bg-emerald-100 text-emerald-600' :
+                        tx.type === 'ADJUSTMENT' ? 'bg-blue-100 text-blue-600' :
+                          tx.type === 'INITIAL' ? 'bg-slate-200 text-slate-600' : 'bg-rose-100 text-rose-600'
+                      }`}>
                       {tx.quantity > 0 ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -526,9 +524,9 @@ export default function ProductStockDetailPage({ params }: PageProps) {
           </div>
 
           <DialogFooter className="mt-6 border-t pt-4">
-            <Button 
-              variant="outline" 
-              className="rounded-full w-full h-12 font-bold uppercase text-[10px] tracking-widest" 
+            <Button
+              variant="outline"
+              className="rounded-full w-full h-12 font-bold uppercase text-[10px] tracking-widest"
               onClick={() => setModalType(null)}
             >
               Close History

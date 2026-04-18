@@ -40,7 +40,7 @@ export default function StockManagementPage() {
       cell: ({ row }) => {
         const product = row.original;
         const imageUrl = product.imageUrl || (product.images?.[0]);
-        const fullImageUrl = imageUrl ? (imageUrl.startsWith('http') ? imageUrl : `http://localhost:8081${imageUrl}`) : null;
+        const fullImageUrl = imageUrl ? (imageUrl.startsWith('http') ? imageUrl : `https://api.zelixa.my.id${imageUrl}`) : null;
         
         return (
           <div className="flex items-center gap-4 py-1">

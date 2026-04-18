@@ -66,7 +66,7 @@ export default function ProductsPage() {
       cell: ({ row }) => {
         let imageUrl = row.original.imageUrl || (row.original.images && row.original.images.length > 0 ? row.original.images[0] : null);
         if (imageUrl && !imageUrl.startsWith('http')) {
-          imageUrl = `http://localhost:8081${imageUrl}`;
+          imageUrl = `https://api.zelixa.my.id${imageUrl}`;
         }
         return (
           <div className="flex items-center gap-3">

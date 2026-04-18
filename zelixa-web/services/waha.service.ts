@@ -17,12 +17,12 @@ export const wahaService = {
     // we can't easily use it in an <img> tag directly without a token in the header.
     // However, if we proxy it or fetch it as a blob, it works.
     // For simplicity, we'll fetch it in the component.
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.zelixa.my.id/api';
     return `${baseUrl}/v1/admin/waha/qr`;
   },
 
   fetchQrCodeBlob: async (): Promise<string> => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.zelixa.my.id/api';
     const token = typeof window !== 'undefined' ? localStorage.getItem('shekza_token') : null;
     
     const response = await fetch(`${baseUrl}/v1/admin/waha/qr`, {
