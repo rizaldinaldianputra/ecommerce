@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
       args:
         - NEXT_PUBLIC_API_URL=https://api.zelixa.my.id/api
-        - NEXT_PUBLIC_STORAGE_URL=https://storage.minio.zelixa.my.id
+        - NEXT_PUBLIC_STORAGE_URL=https://storage.zelixa.my.id
     container_name: zelixa-app
     restart: always
     ports:
@@ -32,7 +32,7 @@ services:
       MINIO_BUCKET: zelixa
       MINIO_USE_SSL: "false"
 
-      NEXT_PUBLIC_MINIO_URL: https://storage.minio.zelixa.my.id
+      NEXT_PUBLIC_MINIO_URL: https://storage.zelixa.my.id
 
     networks:
       - infra-network

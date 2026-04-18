@@ -6,8 +6,8 @@
  */
 export function formatImageUrl(path: string | null | undefined): string {
   if (!path) return '';
-  
-  const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL || 'https://storage.minio.zelixa.my.id';
+
+  const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL || 'https://storage.zelixa.my.id';
   const cleanStorageUrl = storageUrl.endsWith('/') ? storageUrl.slice(0, -1) : storageUrl;
 
   // REPAIR LOGIC: If it's an old internal URL from Docker (e.g. http://minio:9000/...), 
@@ -16,7 +16,7 @@ export function formatImageUrl(path: string | null | undefined): string {
     const parts = path.split('minio:9000');
     if (parts.length > 1) {
       // Clean up any trailing dots or punctuation that might have been copied in the URL
-      const cleanPath = parts[1].replace(/\.$/, ''); 
+      const cleanPath = parts[1].replace(/\.$/, '');
       return `${cleanStorageUrl}${cleanPath}`;
     }
   }
@@ -25,9 +25,9 @@ export function formatImageUrl(path: string | null | undefined): string {
   if (path.startsWith('http')) {
     return path;
   }
-  
+
   // Prepend storage URL to relative paths
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  
+
   return `${cleanStorageUrl}${cleanPath}`;
 }
