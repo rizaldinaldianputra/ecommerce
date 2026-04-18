@@ -7,14 +7,17 @@
 export function formatImageUrl(path: string | null | undefined): string {
   if (!path) return '';
   
-  const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL || 'https://storage.zelixa.my.id';
+  const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL || 'https://storage.minio.zelixa.my.id';
   const cleanStorageUrl = storageUrl.endsWith('/') ? storageUrl.slice(0, -1) : storageUrl;
 
-  // REPAIR LOGIC: If it's an old internal URL from Docker, replace it with public domain
+  // REPAIR LOGIC: If it's an old internal URL from Docker (e.g. http://minio:9000/...), 
+  // replace the internal part with the public domain.
   if (path.includes('minio:9000')) {
     const parts = path.split('minio:9000');
     if (parts.length > 1) {
-      return `${cleanStorageUrl}${parts[1]}`;
+      // Clean up any trailing dots or punctuation that might have been copied in the URL
+      const cleanPath = parts[1].replace(/\.$/, ''); 
+      return `${cleanStorageUrl}${cleanPath}`;
     }
   }
 
