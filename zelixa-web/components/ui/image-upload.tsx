@@ -1,11 +1,8 @@
-'use client';
-
-import { useState } from 'react';
-import { Upload, X, ImageIcon, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { FileUploadService } from '@/services/file-upload.service';
 import { useToast } from '@/hooks/use-toast';
-import Image from 'next/image';
+import { formatImageUrl } from '@/lib/url-utils';
+import { FileUploadService } from '@/services/file-upload.service';
+import { Loader2, Upload, X } from 'lucide-react';
+import { useState } from 'react';
 
 interface ImageUploadProps {
   value?: string;
@@ -40,7 +37,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
     }
   };
 
-  const currentImageUrl = value ? (value.startsWith('http') ? value : `https://api.zelixa.my.id${value}`) : null;
+  const currentImageUrl = formatImageUrl(value);
   const displayUrl = preview || currentImageUrl;
 
   return (
@@ -48,10 +45,10 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
       <div className="flex items-center gap-4">
         {displayUrl ? (
           <div className="relative w-40 h-40 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-white/10 group">
-            <img 
-              src={displayUrl} 
-              alt="Upload" 
-              className="w-full h-full object-cover transition-transform group-hover:scale-105" 
+            <img
+              src={displayUrl}
+              alt="Upload"
+              className="w-full h-full object-cover transition-transform group-hover:scale-105"
             />
             {isUploading && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
@@ -83,12 +80,12 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
                 </>
               )}
             </div>
-            <input 
-              type="file" 
-              className="hidden" 
-              accept="image/*" 
-              onChange={onUpload} 
-              disabled={disabled || isUploading} 
+            <input
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={onUpload}
+              disabled={disabled || isUploading}
             />
           </label>
         )}

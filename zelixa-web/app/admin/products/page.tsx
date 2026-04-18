@@ -8,8 +8,7 @@ import { ProductService } from '@/services/product.service';
 import { Product } from '@/types/product';
 import { Category } from '@/types/category';
 import { useToast } from '@/hooks/use-toast';
-
-import { Switch } from '@/components/ui/switch';
+import { formatImageUrl } from '@/lib/url-utils';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -64,15 +63,13 @@ export default function ProductsPage() {
       accessorKey: 'name',
       header: 'Product',
       cell: ({ row }) => {
-        let imageUrl = row.original.imageUrl || (row.original.images && row.original.images.length > 0 ? row.original.images[0] : null);
-        if (imageUrl && !imageUrl.startsWith('http')) {
-          imageUrl = `https://api.zelixa.my.id${imageUrl}`;
-        }
+        const imageUrl = row.original.imageUrl || (row.original.images && row.original.images.length > 0 ? row.original.images[0] : null);
+        
         return (
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-900 overflow-hidden border border-slate-200 dark:border-slate-800 shrink-0 group">
               {imageUrl ? (
-                <img src={imageUrl} alt="" className="h-full w-full object-cover transition-transform group-hover:scale-110" />
+                <img src={formatImageUrl(imageUrl)} alt="" className="h-full w-full object-cover transition-transform group-hover:scale-110" />
               ) : (
                 <div className="h-full w-full flex items-center justify-center text-slate-400 text-[10px] font-bold">No Img</div>
               )}

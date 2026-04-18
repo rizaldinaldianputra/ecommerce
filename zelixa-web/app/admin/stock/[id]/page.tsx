@@ -16,6 +16,7 @@ import {
   ClipboardList,
   LayoutGrid
 } from 'lucide-react';
+import { formatImageUrl } from '@/lib/url-utils';
 import { ProductService } from '@/services/product.service';
 import { Product, ProductVariant } from '@/types/product';
 import { useToast } from '@/hooks/use-toast';
@@ -254,9 +255,9 @@ export default function ProductStockDetailPage({ params }: PageProps) {
         </div>
 
         <div className="flex flex-col md:flex-row gap-8 items-start relative z-10">
-          <div className="h-32 w-32 rounded-3xl bg-slate-50 dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-white/10 shrink-0 shadow-inner">
+          <div className="w-full md:w-1/3 aspect-square rounded-3xl overflow-hidden border-2 border-slate-200 dark:border-white/10 shadow-2xl relative group">
             {product.imageUrl ? (
-              <img src={product.imageUrl.startsWith('http') ? product.imageUrl : `https://api.zelixa.my.id${product.imageUrl}`} alt="" className="h-full w-full object-cover" />
+              <img src={formatImageUrl(product.imageUrl)} alt="" className="h-full w-full object-cover" />
             ) : (
               <div className="h-full w-full flex items-center justify-center text-slate-300"><Package size={40} /></div>
             )}

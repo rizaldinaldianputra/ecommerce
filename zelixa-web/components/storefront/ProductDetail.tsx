@@ -2,11 +2,15 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Heart, Star, ChevronLeft, ChevronRight, ShieldCheck, Truck, RotateCcw, Minus, Plus, Box, Layers, Palette } from 'lucide-react';
+import { 
+  ShoppingCart, Heart, Star, ChevronLeft, ChevronRight, 
+  ShieldCheck, Truck, RotateCcw, Minus, Plus, Box, Layers, Palette 
+} from 'lucide-react';
 import { Product } from '@/types/product';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
+import { formatImageUrl } from '@/lib/url-utils';
 
 interface ProductDetailProps {
   product: Product;
@@ -18,12 +22,12 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   // Process images
   const images = useMemo(() => {
     const imgs = product.images && product.images.length > 0 ? product.images : [product.imageUrl || '/placeholder.png'];
-    return imgs.map(img => img.startsWith('http') ? img : `https://api.zelixa.my.id${img}`);
+    return imgs.map(img => formatImageUrl(img));
   }, [product.images, product.imageUrl]);
 
   // Find the first valid selection
   const defaultVariant = product.variants?.[0];
-  
+
   const [selectedColor, setSelectedColor] = useState(defaultVariant?.color || '');
   const [selectedSize, setSelectedSize] = useState(defaultVariant?.size || '');
   const [quantity, setQuantity] = useState(1);
@@ -58,8 +62,8 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
   const handleAddToCart = async () => {
     if (!currentVariant?.id) {
-       toast.error('Please select a valid combination.');
-       return;
+      toast.error('Please select a valid combination.');
+      return;
     }
     setIsAdding(true);
     try {
@@ -235,9 +239,9 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {sizes.map(size => {
-                    const isAvailable = product.variants?.some(v => 
-                      v.size === size && 
-                      v.groupName === currentGroupName && 
+                    const isAvailable = product.variants?.some(v =>
+                      v.size === size &&
+                      v.groupName === currentGroupName &&
                       (selectedColor ? v.color === selectedColor : true)
                     );
                     return (

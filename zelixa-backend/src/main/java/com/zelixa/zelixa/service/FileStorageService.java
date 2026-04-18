@@ -76,11 +76,8 @@ public class FileStorageService {
                                 .build());
             }
 
-            // Return public URL
-            // If running in docker, localhost:9000 might not be correct for external access
-            // if mapped differently
-            // but for local dev it's usually fine.
-            return minioUrl + "/" + bucketName + "/" + newFileName;
+            // Return relative path
+            return "/" + bucketName + "/" + newFileName;
         } catch (Exception e) {
             throw new RuntimeException("Failed to store file in MinIO", e);
         }

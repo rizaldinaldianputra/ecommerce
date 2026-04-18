@@ -1,25 +1,25 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ColumnDef } from '@tanstack/react-table';
 import { CrudTable } from '@/components/admin/crud-table';
 import { CategoryService } from '@/services/category.service';
 import { Category } from '@/types/category';
 import { useToast } from '@/hooks/use-toast';
+import { formatImageUrl } from '@/lib/url-utils';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { toast } = useToast();
-  const isMounted = useRef(false);
 
   const fetchCategories = async () => {
     try {
       setIsLoading(true);
-      const data = await CategoryService.getAll();
-      setCategories(data.content || []);
+      const res = await CategoryService.getAll();
+      setCategories(res);
     } catch (error) {
       toast({
         title: 'Error',
@@ -32,38 +32,37 @@ export default function CategoriesPage() {
   };
 
   useEffect(() => {
-    if (isMounted.current) return;
     fetchCategories();
-    isMounted.current = true;
-    return () => { isMounted.current = false; };
   }, []);
 
   const columns: ColumnDef<Category>[] = [
     {
-      accessorKey: 'imageUrl',
-      header: 'Image',
+      accessorKey: 'name',
+      header: 'Category',
       cell: ({ row }) => {
         const imageUrl = row.original.imageUrl;
         return (
-          <div className="h-10 w-10 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 group">
-            {imageUrl ? (
-              <img 
-                src={imageUrl.startsWith('http') ? imageUrl : `https://api.zelixa.my.id${imageUrl}`} 
-                alt={row.original.name} 
-                className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=No+Img';
-                }}
-              />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center text-slate-400 text-[10px]">No Img</div>
-            )}
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-900 overflow-hidden border border-slate-200 dark:border-slate-800 shrink-0 group">
+              {imageUrl ? (
+                <img 
+                  src={formatImageUrl(imageUrl)} 
+                  alt="" 
+                  className="h-full w-full object-cover transition-transform group-hover:scale-110" 
+                />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center text-slate-400 text-xs font-bold uppercase">No Img</div>
+              )}
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-slate-900 dark:text-slate-100 uppercase tracking-tight">{row.original.name}</span>
+              <span className="text-[10px] text-slate-500 font-medium">Category ID: {row.original.id}</span>
+            </div>
           </div>
         );
       },
     },
     {
-      accessorKey: 'name',
       header: 'Name',
       cell: ({ row }) => <span className="font-bold">{row.original.name}</span>,
     },

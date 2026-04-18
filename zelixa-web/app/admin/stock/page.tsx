@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { ColumnDef } from '@tanstack/react-table';
 import { CrudTable } from '@/components/admin/crud-table';
 import Link from 'next/link';
+import { formatImageUrl } from '@/lib/url-utils';
 
 export default function StockManagementPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -40,7 +41,7 @@ export default function StockManagementPage() {
       cell: ({ row }) => {
         const product = row.original;
         const imageUrl = product.imageUrl || (product.images?.[0]);
-        const fullImageUrl = imageUrl ? (imageUrl.startsWith('http') ? imageUrl : `https://api.zelixa.my.id${imageUrl}`) : null;
+        const fullImageUrl = formatImageUrl(imageUrl);
         
         return (
           <div className="flex items-center gap-4 py-1">
