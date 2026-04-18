@@ -20,7 +20,6 @@ export function formatImageUrl(path: string | null | undefined): string {
       return `${cleanStorageUrl}${cleanPath}`;
     }
   }
-
   // If it's another absolute URL (like Google or placeholder), return as is
   if (path.startsWith('http')) {
     return path;
