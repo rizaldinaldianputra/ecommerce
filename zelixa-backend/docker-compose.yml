@@ -1,20 +1,24 @@
-version: "3.8"
-
 services:
   backend:
     build: .
     container_name: zelixa-backend
+    restart: always
     ports:
       - "8081:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-    depends_on:
-      - postgres
-      - redis
-      - minio
+      - DB_URL=jdbc:postgresql://postgres:5432/lawfirm_db
+      - DB_USERNAME=rizaldi
+      - DB_PASSWORD=15031996
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MINIO_URL=http://minio:9000
+      - MINIO_ACCESS_KEY=rizaldi
+      - MINIO_SECRET_KEY=15031996
+      - MINIO_BUCKET=lawfirm
     networks:
-      - zelixa-network
+      - global-network
 
 networks:
-  infra-network:
-    driver: bridge
+  global-network:
+    external: true
