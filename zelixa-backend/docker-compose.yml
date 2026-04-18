@@ -7,7 +7,12 @@ services:
       - "8081:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - DB_URL=jdbc:postgresql://postgres:5432/lawfirm_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/zelixa_db
+      - SPRING_DATASOURCE_USERNAME=rizaldi
+      - SPRING_DATASOURCE_PASSWORD=15031996
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - DB_URL=jdbc:postgresql://postgres:5432/zelixa_db
       - DB_USERNAME=rizaldi
       - DB_PASSWORD=15031996
       - REDIS_HOST=redis
