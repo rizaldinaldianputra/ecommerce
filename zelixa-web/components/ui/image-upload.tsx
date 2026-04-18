@@ -40,7 +40,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
     }
   };
 
-  const currentImageUrl = value ? (value.startsWith('http') ? value : `http://localhost:8081${value}`) : null;
+  const currentImageUrl = value ? (value.startsWith('http') ? value : `https://api.zelixa.my.id${value}`) : null;
   const displayUrl = preview || currentImageUrl;
 
   return (
