@@ -19,8 +19,8 @@ services:
       DB_PASSWORD: "15031996"
       DB_HOST: postgres
       DB_PORT: "5432"
-      DB_NAME: lawfirm_db
-      DATABASE_URL: postgresql://rizaldi:15031996@postgres:5432/lawfirm_db
+      DB_NAME: zelixa_db
+      DATABASE_URL: postgresql://rizaldi:15031996@postgres:5432/zelixa_db
       NEXTAUTH_URL: https://zelixa.my.id
       NEXTAUTH_URL_INTERNAL: http://app:3000
       NEXTAUTH_SECRET: zelixa-key-2026-v1
@@ -29,7 +29,7 @@ services:
       MINIO_PORT: 9000
       MINIO_ACCESS_KEY: rizaldi
       MINIO_SECRET_KEY: 15031996
-      MINIO_BUCKET: lawfirm
+      MINIO_BUCKET: zelixa
       MINIO_USE_SSL: "false"
 
       NEXT_PUBLIC_MINIO_URL: https://storage.zelixa.my.id

@@ -76,10 +76,10 @@ public class SecurityConfig {
                                                 .anyRequest().authenticated())
                                 .exceptionHandling(exceptions -> exceptions
                                                 .defaultAuthenticationEntryPointFor(
-                                                                (request, response, authException) -> response.sendError(401, "Unauthorized"),
-                                                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/**")
-                                                )
-                                )
+                                                                (request, response, authException) -> response
+                                                                                .sendError(401, "Unauthorized"),
+                                                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher(
+                                                                                "/api/**")))
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authenticationProvider(authenticationProvider())
@@ -92,12 +92,11 @@ public class SecurityConfig {
         CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
                 configuration.setAllowedOrigins(List.of(
-                        "http://localhost:3000",
-                        "http://localhost:3001",
-                        "https://zelixa.my.id",
-                        "https://lawfirm.zelixa.my.id",
-                        "https://admin.zelixa.my.id"
-                ));
+                                "http://localhost:3000",
+                                "http://localhost:3001",
+                                "https://zelixa.my.id",
+                                "https://lawfirm.zelixa.my.id",
+                                "https://admin.zelixa.my.id"));
                 configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
                 configuration.setAllowedHeaders(List.of("*"));
                 configuration.setAllowCredentials(true);
