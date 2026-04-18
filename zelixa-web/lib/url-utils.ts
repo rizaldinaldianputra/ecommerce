@@ -7,16 +7,23 @@
 export function formatImageUrl(path: string | null | undefined): string {
   if (!path) return '';
   
-  // If it's already a full URL, return it
+  const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL || 'https://storage.zelixa.my.id';
+  const cleanStorageUrl = storageUrl.endsWith('/') ? storageUrl.slice(0, -1) : storageUrl;
+
+  // REPAIR LOGIC: If it's an old internal URL from Docker, replace it with public domain
+  if (path.includes('minio:9000')) {
+    const parts = path.split('minio:9000');
+    if (parts.length > 1) {
+      return `${cleanStorageUrl}${parts[1]}`;
+    }
+  }
+
+  // If it's another absolute URL (like Google or placeholder), return as is
   if (path.startsWith('http')) {
     return path;
   }
   
   // Prepend storage URL to relative paths
-  const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL || 'https://storage.zelixa.my.id';
-  
-  // Ensure we don't have double slashes if the storage URL ends with one or path starts with one
-  const cleanStorageUrl = storageUrl.endsWith('/') ? storageUrl.slice(0, -1) : storageUrl;
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   
   return `${cleanStorageUrl}${cleanPath}`;
