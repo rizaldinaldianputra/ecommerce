@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../config/app_style.dart';
-
+import '../../models/news_model.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 class NewsDetailPage extends StatelessWidget {
-  final Map<String, dynamic> newsData;
+  final NewsModel newsData;
 
   const NewsDetailPage({super.key, required this.newsData});
 
@@ -26,8 +27,13 @@ class NewsDetailPage extends StatelessWidget {
             ),
             flexibleSpace: FlexibleSpaceBar(
               background: Image.network(
-                newsData['image'] ?? 'https://picsum.photos/600/300',
+                newsData.imageUrl ?? 'https://picsum.photos/600/300',
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: Colors.grey,
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
               ),
             ),
           ),
@@ -42,28 +48,49 @@ class NewsDetailPage extends StatelessWidget {
                       CircleAvatar(
                         radius: 12,
                         backgroundColor: AppColors.primary.withOpacity(0.1),
-                        child: Icon(Icons.person, size: 14, color: AppColors.primary),
+                        child: Icon(
+                          Icons.person,
+                          size: 14,
+                          color: AppColors.primary,
+                        ),
                       ),
                       const SizedBox(width: 8),
-                      Text(newsData['author'] ?? 'Zelixa Editor', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      Text(
+                        newsData.author ?? 'Zelixa Editor',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
                       const Spacer(),
-                      Text(newsData['date'] ?? '28 Mar 2026', style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                      Text(
+                        newsData.createdAt ?? 'Baru',
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 13,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    newsData['title'] ?? 'Title',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24, height: 1.3),
+                    newsData.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      height: 1.3,
+                    ),
                   ),
                   const SizedBox(height: 24),
                   const Divider(),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\n'
-                    'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\n'
-                    'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.\n\n'
-                    'Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.',
-                    style: TextStyle(fontSize: 16, height: 1.8, color: Colors.black87),
+                  HtmlWidget(
+                    newsData.content,
+                    textStyle: const TextStyle(
+                      fontSize: 15,
+                      height: 1.6,
+                      color: Colors.black87,
+                    ),
                   ),
                   const SizedBox(height: 40),
                 ],
@@ -87,7 +114,9 @@ class NewsDetailPage extends StatelessWidget {
                 label: const Text('Share Article'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
             ),
@@ -95,12 +124,21 @@ class NewsDetailPage extends StatelessWidget {
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () {},
-                icon: const Icon(Icons.bookmark_border, size: 18, color: Colors.white),
-                label: const Text('Save News', style: TextStyle(color: Colors.white)),
+                icon: const Icon(
+                  Icons.bookmark_border,
+                  size: 18,
+                  color: Colors.white,
+                ),
+                label: const Text(
+                  'Save News',
+                  style: TextStyle(color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
             ),

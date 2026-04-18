@@ -1,15 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 import '../../config/app_style.dart';
+import '../../models/checkout_model.dart';
+import 'package:intl/intl.dart';
 
 class OrderDetailPage extends StatelessWidget {
-  final Map<String, dynamic> orderData;
+  final OrderResponse orderData;
 
   const OrderDetailPage({super.key, required this.orderData});
 
+  Color _getStatusColor(String status) {
+    if (status.toUpperCase() == 'SELESAI') return Colors.green;
+    if (status.toUpperCase() == 'DIBATALKAN') return Colors.red;
+    if (status.toUpperCase() == 'DIKIRIM') return Colors.blue;
+    return AppColors.primary;
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool isCompleted = orderData['status'] == 'Selesai';
+    bool isCompleted = orderData.status.toUpperCase() == 'SELESAI';
+    bool isCancelled = orderData.status.toUpperCase() == 'DIBATALKAN';
+
+    String dateStr = orderData.createdAt ?? '';
+    try {
+      if (dateStr.isNotEmpty) {
+        DateTime dt = DateTime.parse(dateStr);
+        dateStr = DateFormat('dd MMM yyyy, HH:mm').format(dt);
+      }
+    } catch (e) {
+      // ignore
+    }
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
@@ -39,67 +59,78 @@ class OrderDetailPage extends StatelessWidget {
             _buildWhiteCard(
               child: Column(
                 children: [
-                  _buildDetailRow(
+                   _buildDetailRow(
                     'No. Pesanan',
-                    orderData['id'] ?? 'ZLX-987654321',
+                    orderData.orderNumber,
                   ),
                   _buildDetailRow(
                     'Tanggal Pesanan',
-                    orderData['date'] ?? '27 Mar 2026, 14:30',
+                    dateStr,
                   ),
                   _buildDetailRow(
                     'Status',
-                    orderData['status'] ?? 'Diproses',
-                    valueColor: orderData['statusColor'],
+                    orderData.status.toUpperCase(),
+                    valueColor: _getStatusColor(orderData.status),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
 
-            // TIMELINE SECTION
-
-            // PRODUCT CARD
             _buildSectionTitle('Produk'),
-            _buildWhiteCard(
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      orderData['image'] ?? 'https://picsum.photos/200',
-                      width: 70,
-                      height: 70,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
+            ...orderData.items.map((item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildWhiteCard(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          orderData['productName'] ?? 'Premium Item',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            item.imageUrl,
+                            width: 70,
+                            height: 70,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(width: 70, height: 70, color: Colors.grey.shade200),
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '1 Barang x Rp ${orderData['total']}',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.productName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Varian: ${item.size}, ${item.color}',
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${item.quantity} Barang x Rp ${item.price.toInt()}',
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
+                )),
+             
+            const SizedBox(height: 8),
 
             _buildSectionTitle('Lacak Pengiriman'),
             _buildWhiteCard(
@@ -111,36 +142,25 @@ class OrderDetailPage extends StatelessWidget {
                 ),
                 builder: TimelineTileBuilder.connected(
                   indicatorBuilder: (context, index) {
+                    final statusIdx = _getStatusIndex(orderData.status);
+                    final isReached = (4 - index) <= statusIdx; 
                     return DotIndicator(
-                      color: index == 0
-                          ? AppColors.primary
+                      color: isReached
+                          ? (isCancelled ? Colors.red : AppColors.primary)
                           : Colors.grey.shade300,
                     );
                   },
                   connectorBuilder: (context, index, type) {
+                    final statusIdx = _getStatusIndex(orderData.status);
+                    final isReached = (4 - index) <= statusIdx; 
                     return SolidLineConnector(
-                      color: index == 0
-                          ? AppColors.primary
+                      color: isReached
+                          ? (isCancelled ? Colors.red : AppColors.primary)
                           : Colors.grey.shade300,
                     );
                   },
                   contentsBuilder: (context, index) {
-                    final statuses = [
-                      {'title': 'Pesanan Selesai', 'time': '28 Mar, 09:00'},
-                      {
-                        'title': 'Diterima oleh [Nama Penerima]',
-                        'time': '28 Mar, 08:45',
-                      },
-                      {
-                        'title': 'Kurir sedang menuju alamat anda',
-                        'time': '28 Mar, 07:30',
-                      },
-                      {
-                        'title': 'Pesanan dikirim dari gudang',
-                        'time': '27 Mar, 20:00',
-                      },
-                      {'title': 'Pembayaran Berhasil', 'time': '27 Mar, 14:35'},
-                    ];
+                    final statuses = _generateTimelines(orderData);
                     return Padding(
                       padding: const EdgeInsets.only(left: 16.0, bottom: 20),
                       child: Column(
@@ -176,9 +196,9 @@ class OrderDetailPage extends StatelessWidget {
             _buildWhiteCard(
               child: Column(
                 children: [
-                  _buildDetailRow('Metode Pembayaran', 'Zelixa Pay / E-Wallet'),
-                  _buildDetailRow('Total Harga', 'Rp ${orderData['total']}'),
-                  _buildDetailRow('Biaya Pengiriman', 'Rp 15.000'),
+                  _buildDetailRow('Metode Pembayaran', 'Midtrans'),
+                  _buildDetailRow('Total Harga', 'Rp ${(orderData.totalAmount - orderData.shippingAmount).toInt()}'),
+                  _buildDetailRow('Biaya Pengiriman', 'Rp ${orderData.shippingAmount.toInt()}'),
                   const Divider(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -188,7 +208,7 @@ class OrderDetailPage extends StatelessWidget {
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        'Rp ${orderData['total']}',
+                        'Rp ${orderData.totalAmount.toInt()}',
                         style: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
@@ -266,6 +286,25 @@ class OrderDetailPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  int _getStatusIndex(String status) {
+    if (status.toUpperCase() == 'SELESAI' || status.toUpperCase() == 'DIBATALKAN') return 4;
+    if (status.toUpperCase() == 'DIKIRIM') return 3;
+    if (status.toUpperCase() == 'DIKEMAS') return 2;
+    if (status.toUpperCase() == 'DIBAYAR') return 1;
+    return 0; // PENDING
+  }
+
+  List<Map<String, String>> _generateTimelines(OrderResponse order) {
+    bool isCancelled = order.status.toUpperCase() == 'DIBATALKAN';
+    return [
+       {'title': isCancelled ? 'Pesanan Dibatalkan' : 'Pesanan Selesai / Sampai', 'time': ''},
+       {'title': 'Kurir sedang menuju alamat anda', 'time': ''},
+       {'title': 'Pesanan dikirim dari gudang', 'time': ''},
+       {'title': 'Pesanan sedang dikemas', 'time': ''},
+       {'title': 'Pesanan Dibuat', 'time': ''},
+    ];
   }
 
   Widget _buildWhiteCard({required Widget child}) {

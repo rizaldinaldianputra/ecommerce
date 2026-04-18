@@ -1,45 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/app_style.dart';
+import '../../riverpod/order_provider.dart';
+import '../../models/checkout_model.dart';
+import 'package:intl/intl.dart';
 
-class OrderListPage extends StatelessWidget {
+class OrderListPage extends ConsumerStatefulWidget {
   const OrderListPage({super.key});
 
   @override
+  ConsumerState<OrderListPage> createState() => _OrderListPageState();
+}
+
+class _OrderListPageState extends ConsumerState<OrderListPage> {
+  String selectedFilter = 'Semua';
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Color _getStatusColor(String status) {
+    if (status.toUpperCase() == 'SELESAI') return Colors.green;
+    if (status.toUpperCase() == 'DIBATALKAN') return Colors.red;
+    if (status.toUpperCase() == 'DIKIRIM') return Colors.blue;
+    return AppColors.primary;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Mock data order
-    final List<Map<String, dynamic>> orders = [
-      {
-        'id': 'ORD-20260327-001',
-        'date': '27 Mar 2026',
-        'status': 'Dikirim',
-        'statusColor': Colors.blue,
-        'total': 465000,
-        'itemCount': 1,
-        'image': 'https://picsum.photos/200/200?random=10',
-        'productName': 'Premium Casual Hoodie',
-      },
-      {
-        'id': 'ORD-20260325-092',
-        'date': '25 Mar 2026',
-        'status': 'Selesai',
-        'statusColor': Colors.green,
-        'total': 890000,
-        'itemCount': 2,
-        'image': 'https://picsum.photos/200/200?random=11',
-        'productName': 'Slim Fit Denim Jacket',
-      },
-      {
-        'id': 'ORD-20260320-045',
-        'date': '20 Mar 2026',
-        'status': 'Dibatalkan',
-        'statusColor': Colors.red,
-        'total': 150000,
-        'itemCount': 1,
-        'image': 'https://picsum.photos/200/200?random=12',
-        'productName': 'White Basic T-Shirt',
-      },
-    ];
+    final orderState = ref.watch(orderProvider);
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
@@ -61,8 +55,14 @@ class OrderListPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(color: Colors.grey.shade200),
               ),
-              child: const TextField(
-                decoration: InputDecoration(
+              child: TextField(
+                controller: _searchController,
+                onChanged: (val) {
+                  setState(() {
+                    _searchQuery = val.toLowerCase();
+                  });
+                },
+                decoration: const InputDecoration(
                   hintText: 'Cari pesanan anda...',
                   hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                   border: InputBorder.none,
@@ -72,7 +72,7 @@ class OrderListPage extends StatelessWidget {
             ),
           ),
 
-          // Status Tabs (Mock)
+          // Status Tabs
           Container(
             height: 50,
             color: Colors.white,
@@ -80,48 +80,89 @@ class OrderListPage extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                _buildTab('Semua', true),
-                _buildTab('Belum Bayar', false),
-                _buildTab('Dikemas', false),
-                _buildTab('Dikirim', false),
-                _buildTab('Selesai', false),
+                _buildTab('Semua'),
+                _buildTab('PENDING'),
+                _buildTab('DIKEMAS'),
+                _buildTab('DIKIRIM'),
+                _buildTab('SELESAI'),
               ],
             ),
           ),
           
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: orders.length,
-              itemBuilder: (context, index) {
-                final order = orders[index];
-                return _buildOrderCard(context, order);
+            child: orderState.when(
+              data: (orders) {
+                // Apply Search Filtering
+                var filtered = orders.where((o) {
+                  bool matchesQuery = _searchQuery.isEmpty ||
+                      o.orderNumber.toLowerCase().contains(_searchQuery) ||
+                      o.items.any((item) => item.productName.toLowerCase().contains(_searchQuery));
+                  
+                  bool matchesTab = selectedFilter == 'Semua' || o.status.toUpperCase() == selectedFilter.toUpperCase();
+
+                  return matchesQuery && matchesTab;
+                }).toList();
+
+                if (filtered.isEmpty) {
+                  return const Center(child: Text("Tidak ada pesanan"));
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    final order = filtered[index];
+                    return _buildOrderCard(context, order);
+                  },
+                );
               },
-            ),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, _) => Center(child: Text("Error: $err")),
+            )
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTab(String label, bool isSelected) {
-    return Container(
-      margin: const EdgeInsets.only(right: 24),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: isSelected ? AppColors.primary : Colors.transparent, width: 2)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? AppColors.primary : Colors.grey,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+  Widget _buildTab(String label) {
+    bool isSelected = selectedFilter == label;
+    return GestureDetector(
+      onTap: () {
+        setState(() => selectedFilter = label);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 24),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: isSelected ? AppColors.primary : Colors.transparent, width: 2)),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? AppColors.primary : Colors.grey,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildOrderCard(BuildContext context, Map<String, dynamic> order) {
+  Widget _buildOrderCard(BuildContext context, OrderResponse order) {
+    final firstItem = order.items.isNotEmpty ? order.items.first : null;
+    final totalItems = order.items.fold(0, (sum, item) => sum + item.quantity);
+
+    // Format Date
+    String dateStr = order.createdAt ?? '';
+    try {
+      if (dateStr.isNotEmpty) {
+        DateTime dt = DateTime.parse(dateStr);
+        dateStr = DateFormat('dd MMM yyyy').format(dt);
+      }
+    } catch (e) {
+      // fallback
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -141,20 +182,20 @@ class OrderListPage extends StatelessWidget {
                   children: [
                     const Icon(Icons.shopping_bag_outlined, size: 16, color: Colors.grey),
                     const SizedBox(width: 8),
-                    Text('Belanja', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey.shade800)),
+                    Text(order.orderNumber, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey.shade800)),
                     const SizedBox(width: 8),
-                    Text(order['date'], style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                    Text(dateStr, style: const TextStyle(color: Colors.grey, fontSize: 12)),
                   ],
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: (order['statusColor'] as Color).withOpacity(0.1),
+                    color: _getStatusColor(order.status).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    order['status'],
-                    style: TextStyle(color: order['statusColor'], fontWeight: FontWeight.bold, fontSize: 11),
+                    order.status.toUpperCase(),
+                    style: TextStyle(color: _getStatusColor(order.status), fontWeight: FontWeight.bold, fontSize: 11),
                   ),
                 ),
               ],
@@ -164,16 +205,18 @@ class OrderListPage extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.network(order['image'], width: 60, height: 60, fit: BoxFit.cover),
+                  child: firstItem != null 
+                    ? Image.network(firstItem.imageUrl, width: 60, height: 60, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(width: 60, height: 60, color: Colors.grey.shade200)) 
+                    : Container(width: 60, height: 60, color: Colors.grey.shade200),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(order['productName'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text(firstItem?.productName ?? 'Produk tidak diketahui', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
                       const SizedBox(height: 4),
-                      Text('${order['itemCount']} produk', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text('$totalItems produk', style: const TextStyle(color: Colors.grey, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -187,21 +230,22 @@ class OrderListPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Total Pesanan', style: TextStyle(color: Colors.grey, fontSize: 11)),
-                    Text('Rp ${order['total']}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black)),
+                    Text('Rp ${order.totalAmount.toInt()}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black)),
                   ],
                 ),
                 Row(
                   children: [
-                    OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.grey.shade300),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        minimumSize: const Size(0, 0),
+                    if (order.status.toUpperCase() == 'SELESAI')
+                      OutlinedButton(
+                        onPressed: () {},
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.grey.shade300),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          minimumSize: const Size(0, 0),
+                        ),
+                        child: const Text('Beli Lagi', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87)),
                       ),
-                      child: const Text('Beli Lagi', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87)),
-                    ),
                     const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () {

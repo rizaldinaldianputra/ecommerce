@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 import '../../components/button_widget.dart';
 import '../../services/auth_service.dart';
@@ -163,7 +164,9 @@ class _LoginPageState extends State<LoginPage> {
                 // ),
                 CustomButton(
                   text: 'Sign up with Email',
-                  onPressed: () {},
+                  onPressed: () {
+                    context.goNamed('/home');
+                  },
                   color: Colors.pink,
                 ),
 

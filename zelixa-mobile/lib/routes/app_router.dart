@@ -11,10 +11,12 @@ import '../pages/home/wishlist_page.dart';
 import '../pages/notification/notification_list_page.dart';
 import '../pages/auth/whatsapp_login_page.dart';
 import '../pages/auth/otp_verification_page.dart';
+import '../models/checkout_model.dart';
+import '../models/news_model.dart';
 
 class AppRouter {
   static final router = GoRouter(
-    initialLocation: '/login',
+    initialLocation: '/home',
     routes: [
       GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
       GoRoute(
@@ -28,7 +30,11 @@ class AppRouter {
           return OtpVerificationPage(phoneNumber: phone);
         },
       ),
-      GoRoute(path: '/', builder: (context, state) => const MainPage()),
+      GoRoute(
+        path: '/home',
+        name: '/home',
+        builder: (context, state) => const MainPage(),
+      ),
       GoRoute(
         path: '/checkout',
         builder: (context, state) => const CheckoutPage(),
@@ -36,7 +42,7 @@ class AppRouter {
       GoRoute(
         path: '/order-detail',
         builder: (context, state) {
-          final orderData = state.extra as Map<String, dynamic>;
+          final orderData = state.extra as OrderResponse;
           return OrderDetailPage(orderData: orderData);
         },
       ),
@@ -44,7 +50,7 @@ class AppRouter {
       GoRoute(
         path: '/news-detail',
         builder: (context, state) {
-          final newsData = state.extra as Map<String, dynamic>;
+          final newsData = state.extra as NewsModel;
           return NewsDetailPage(newsData: newsData);
         },
       ),
