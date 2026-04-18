@@ -35,8 +35,8 @@ services:
       NEXT_PUBLIC_MINIO_URL: https://storage.zelixa.my.id
 
     networks:
-      - global-network
+      - infra-network
 
 networks:
-  global-network:
+  infra-network:
     external: true

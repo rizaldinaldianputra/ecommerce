@@ -22,8 +22,8 @@ services:
       - MINIO_SECRET_KEY=15031996
       - MINIO_BUCKET=zelixa
     networks:
-      - global-network
+      - infra-network
 
 networks:
-  global-network:
+  infra-network:
     external: true
