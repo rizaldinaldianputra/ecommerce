@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         hostname: 'storage.zelixa.my.id',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'store.zelixa.my.id',
+        pathname: '/**',
+      },
     ],
   },
   // Disable strict build checks to allow production build to pass despite linting errors

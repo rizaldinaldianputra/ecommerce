@@ -6,6 +6,7 @@ import { X, ShoppingCart, Star, Plus, Minus, CheckCircle2, Loader2 } from 'lucid
 import { useCart } from '@/contexts/CartContext';
 import { Product, ProductVariant, AddToCartModalProps } from '@/types/product';
 import { toast } from 'sonner';
+import { formatImageUrl } from '@/lib/url-utils';
 
 export default function AddToCartModal({ isOpen, onClose, product }: AddToCartModalProps) {
   const { addToCart } = useCart();
@@ -110,7 +111,7 @@ export default function AddToCartModal({ isOpen, onClose, product }: AddToCartMo
                 <div className="w-full md:w-5/12 aspect-square p-6">
                   <div className="w-full h-full rounded-[2rem] overflow-hidden bg-neutral-100 group shadow-inner">
                     <img 
-                      src={currentVariant?.imageUrl || product.imageUrl || product.img} 
+                      src={formatImageUrl(currentVariant?.imageUrl || product.imageUrl || product.img)} 
                       alt={product.name} 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                     />

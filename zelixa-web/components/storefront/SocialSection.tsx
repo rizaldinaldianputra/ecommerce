@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ContentService } from '@/services/content.service';
 import { SocialSectionProps } from '@/types/content';
+import { formatImageUrl } from '@/lib/url-utils';
 
 export default function SocialSection({ section }: SocialSectionProps) {
   const [posts, setPosts] = useState<any[]>([]);
@@ -19,7 +20,7 @@ export default function SocialSection({ section }: SocialSectionProps) {
         if (targetSection?.items) {
           const mapped = targetSection.items.map(item => ({
             id: item.id,
-            image: item.imageUrl,
+            image: formatImageUrl(item.imageUrl || ''),
             likes: item.badgeText || '0',
             product: item.title,
             link: item.linkUrl || '#',

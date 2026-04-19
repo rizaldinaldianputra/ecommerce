@@ -7,20 +7,28 @@
 export function formatImageUrl(path: string | null | undefined): string {
   if (!path) return '';
 
-  const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL || 'https://storage.zelixa.my.id';
+  const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL || 'https://store.zelixa.my.id';
   const cleanStorageUrl = storageUrl.endsWith('/') ? storageUrl.slice(0, -1) : storageUrl;
 
-  // REPAIR LOGIC: If it's an old internal URL from Docker (e.g. http://minio:9000/...), 
-  // replace the internal part with the public domain.
+  // Handle data URLs directly
+  if (path.startsWith('data:')) {
+    return path;
+  }
+
+  // REPAIR LOGIC: If it contains minio:9000 (even if it's already an absolute URL)
+  // replace that part with the public domain.
   if (path.includes('minio:9000')) {
     const parts = path.split('minio:9000');
     if (parts.length > 1) {
+      // The part after minio:9000 might already have a slash
+      const cleanPath = parts[1].startsWith('/') ? parts[1] : `/${parts[1]}`;
       // Clean up any trailing dots or punctuation that might have been copied in the URL
-      const cleanPath = parts[1].replace(/\.$/, '');
-      return `${cleanStorageUrl}${cleanPath}`;
+      const finalPath = cleanPath.replace(/\.$/, '');
+      return `${cleanStorageUrl}${finalPath}`;
     }
   }
-  // If it's another absolute URL (like Google or placeholder), return as is
+
+  // If it's already an absolute public URL (like Google or placeholder), return as is
   if (path.startsWith('http')) {
     return path;
   }

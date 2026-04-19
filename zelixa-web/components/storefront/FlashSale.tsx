@@ -6,10 +6,12 @@ import ProductCard from './ProductCard';
 import { Zap, Clock, Flame } from 'lucide-react';
 import { ContentService } from '@/services/content.service';
 import { FlashSaleProps } from '@/types/content';
+import { formatImageUrl } from '@/lib/url-utils';
 
 export default function FlashSale({ section }: FlashSaleProps) {
   const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 34, seconds: 12 });
   const [products, setProducts] = useState<any[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Window-based scroll (no target ref → avoids hydration error)
   const { scrollYProgress } = useScroll();
@@ -25,7 +27,7 @@ export default function FlashSale({ section }: FlashSaleProps) {
         price: 0,
         originalPrice: 0,
         slug: item.linkUrl?.split('/').pop() || '',
-        imageUrl: item.imageUrl || '',
+        imageUrl: formatImageUrl(item.imageUrl || ''),
         stock: parseInt(item.badgeText || '10'),
         variants: [],
         isActive: true,
@@ -36,6 +38,9 @@ export default function FlashSale({ section }: FlashSaleProps) {
         categoryId: 0,
       }));
       setProducts(mapped);
+      setIsLoaded(true);
+    } else {
+      setIsLoaded(true);
     }
   }, [section]);
 
@@ -50,6 +55,10 @@ export default function FlashSale({ section }: FlashSaleProps) {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  if (isLoaded && products.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-24 relative bg-neutral-900 overflow-hidden">
@@ -137,17 +146,6 @@ export default function FlashSale({ section }: FlashSaleProps) {
           </motion.div>
         </div>
 
-        {products.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center py-20 text-neutral-600"
-          >
-            <Zap size={40} className="mx-auto mb-4 opacity-20" />
-            <p className="text-lg font-bold">Flash sale items will appear here</p>
-          </motion.div>
-        ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {products.map((product: any, i: number) => (
               <motion.div
@@ -180,7 +178,6 @@ export default function FlashSale({ section }: FlashSaleProps) {
               </motion.div>
             ))}
           </div>
-        )}
       </div>
     </section>
   );

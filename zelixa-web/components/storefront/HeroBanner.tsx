@@ -7,6 +7,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import { ContentService } from '@/services/content.service';
 import { ContentSection, Slide } from '@/types/content';
 import { slugify } from '@/lib/utils/slug';
+import { formatImageUrl } from '@/lib/url-utils';
 
 interface HeroBannerProps {
   section?: ContentSection;
@@ -45,7 +46,7 @@ export default function HeroBanner({ section }: HeroBannerProps) {
               bgFrom: styles[0] || 'from-pink-50',
               bgTo: styles[1] || 'to-rose-100',
               accent: styles[2] || 'from-pink-400 to-rose-600',
-              image: item.imageUrl || '',
+              image: formatImageUrl(item.imageUrl || ''),
               badge: item.badgeText || '',
             };
           });

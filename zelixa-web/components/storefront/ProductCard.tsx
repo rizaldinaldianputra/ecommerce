@@ -7,6 +7,7 @@ import Link from 'next/link';
 import AddToCartModal from './AddToCartModal';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { Product, ProductCardProps } from '@/types/product';
+import { formatImageUrl } from '@/lib/url-utils';
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -28,7 +29,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <Link href={`/products/${product.slug}`}>
             {(product.imageUrl || product.img) ? (
               <motion.img
-                src={product.imageUrl || product.img}
+                src={formatImageUrl(product.imageUrl || product.img)}
                 alt={product.name}
                 animate={{ scale: isHovered ? 1.1 : 1 }}
                 transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
