@@ -15,6 +15,7 @@ import { AuthUser } from '@/types/auth';
 import { authService } from '@/services/auth.service';
 import { CategoryService } from '@/services/category.service';
 import { Category } from '@/types/category';
+import { formatImageUrl } from '@/lib/url-utils';
 
 // Helper to map category names to icons (or use default)
 const getCategoryIcon = (name: string) => {
@@ -155,7 +156,7 @@ export default function Navbar() {
                           className="flex items-center gap-4 p-4 rounded-2xl hover:bg-neutral-50 transition-all group/item border border-transparent hover:border-pink-100"
                         >
                           <div className="w-10 h-10 bg-neutral-100 rounded-xl flex items-center justify-center text-xl group-hover/item:scale-110 group-hover/item:bg-pink-50 transition-all">
-                            {cat.imageUrl ? <img src={cat.imageUrl} alt={cat.name} className="w-6 h-6 object-contain" /> : getCategoryIcon(cat.name)}
+                            {cat.imageUrl ? <img src={formatImageUrl(cat.imageUrl)} alt={cat.name} className="w-6 h-6 object-contain" /> : getCategoryIcon(cat.name)}
                           </div>
                           <div>
                             <h4 className="text-sm font-black text-neutral-900 group-hover/item:text-pink-500 transition-colors">{cat.name}</h4>
@@ -256,7 +257,7 @@ export default function Navbar() {
                   >
                     <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shadow-md bg-gradient-to-br from-indigo-500 to-purple-600">
                       {user?.profilePicture ? (
-                        <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                        <img src={formatImageUrl(user.profilePicture)} alt="Profile" className="w-full h-full object-cover" />
                       ) : (
                         <User size={16} className="text-white" />
                       )}

@@ -4,6 +4,7 @@ import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Heart, Loader2 } from 'lu
 import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatImageUrl } from '@/lib/url-utils';
 
 export default function CartPage() {
   const { cartItems, cartCount, totalAmount, updateQuantity, removeFromCart, isLoading } = useCart();
@@ -60,7 +61,7 @@ export default function CartPage() {
                 className="bg-white rounded-3xl p-4 md:p-6 border border-neutral-100 flex gap-4 md:gap-6 items-center hover:shadow-lg hover:shadow-black/5 transition-all"
               >
                 <div className="w-24 h-32 md:w-32 md:h-40 rounded-2xl overflow-hidden flex-shrink-0 bg-neutral-50">
-                  <img src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
+                  <img src={formatImageUrl(item.imageUrl)} alt={item.productName} className="w-full h-full object-cover" />
                 </div>
 
                 <div className="flex-1 flex flex-col min-w-0">

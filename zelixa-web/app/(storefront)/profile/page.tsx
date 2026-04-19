@@ -11,6 +11,7 @@ import { STYLE_CONFIG } from '@/services/style.config';
 import Link from 'next/link';
 import { authService, AuthUser } from '@/services/auth.service';
 import { useEffect } from 'react';
+import { formatImageUrl } from '@/lib/url-utils';
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('personal');
@@ -49,7 +50,7 @@ export default function ProfilePage() {
               <div className="relative inline-block group">
                 <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-neutral-100 relative">
                   <img
-                    src={user?.profilePicture || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=300"}
+                    src={formatImageUrl(user?.profilePicture) || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=300"}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
@@ -249,7 +250,7 @@ export default function ProfilePage() {
                       className="bg-white rounded-[2rem] p-4 border border-neutral-100 shadow-sm hover:shadow-2xl transition-all group overflow-hidden"
                     >
                       <div className="relative aspect-square rounded-2xl overflow-hidden mb-4">
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        <img src={formatImageUrl(item.image)} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                         <div className="absolute top-4 right-4 flex flex-col gap-2">
                           <button className="w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-neutral-900 shadow-lg hover:bg-pink-500 hover:text-white transition-all transform translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 duration-300">
                             <Heart size={18} />

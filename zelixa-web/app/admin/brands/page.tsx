@@ -9,6 +9,7 @@ import { Brand } from '@/types/brand';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { formatImageUrl } from '@/lib/url-utils';
 
 export default function BrandsPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -45,7 +46,7 @@ export default function BrandsPage() {
         return (
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 border border-slate-100">
-              <AvatarImage src={brand.logoUrl} alt={brand.name} />
+              <AvatarImage src={formatImageUrl(brand.logoUrl)} alt={brand.name} />
               <AvatarFallback>{brand.name.substring(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">

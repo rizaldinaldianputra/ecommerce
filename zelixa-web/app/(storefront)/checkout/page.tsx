@@ -14,6 +14,7 @@ import { CheckoutStep, Courier } from '@/types/checkout';
 import { Address } from '@/types/address';
 import { toast } from 'sonner';
 import { ShippingService, LocationItem } from '@/services/shipping.service';
+import { formatImageUrl } from '@/lib/url-utils';
 
 declare global {
   interface Window {
@@ -473,7 +474,7 @@ export default function CheckoutPage() {
               {cartItems.map((item) => (
                 <div key={item.id} className="flex gap-4 items-center">
                   <div className="w-12 h-16 bg-white rounded-lg border border-neutral-100 overflow-hidden flex-shrink-0">
-                    <img src={item.imageUrl} className="w-full h-full object-cover" />
+                    <img src={formatImageUrl(item.imageUrl)} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-neutral-900 truncate">{item.productName}</p>

@@ -15,6 +15,7 @@ import { Order, OrderItem, OrderStatus, OrderTab } from '@/types/order';
 import { authService } from '@/services/auth.service';
 import { AuthUser } from '@/types/auth';
 import { OrderService } from '@/services/order.service';
+import { formatImageUrl } from '@/lib/url-utils';
 
 const orderTabs: OrderTab[] = [
   { id: 'all', label: 'All' },
@@ -184,7 +185,7 @@ export default function OrdersPage() {
                       <h5 className="text-[10px] font-black uppercase tracking-widest text-neutral-400 pl-4">Order Items</h5>
                       {selectedOrder.items.map((item: OrderItem, i: number) => (
                         <div key={i} className="flex items-center gap-4 p-4 border border-neutral-100 rounded-2xl">
-                           <img src={item.imageUrl || item.img || '/placeholder.png'} alt={item.productName || item.name} className="w-16 h-16 rounded-xl object-cover bg-neutral-100" />
+                           <img src={formatImageUrl(item.imageUrl || item.img || '/placeholder.png')} alt={item.productName || item.name} className="w-16 h-16 rounded-xl object-cover bg-neutral-100" />
                            <div className="flex-1">
                               <p className="text-sm font-black text-neutral-900">{item.productName || item.name}</p>
                               <p className="text-xs text-neutral-400">Qty: {item.quantity || item.qty}</p>
@@ -295,7 +296,7 @@ export default function OrdersPage() {
                   <div className="flex items-center gap-6">
                      <div className="relative">
                         <img 
-                          src={order.items[0]?.imageUrl || order.items[0]?.img || '/placeholder.png'} 
+                          src={formatImageUrl(order.items[0]?.imageUrl || order.items[0]?.img || '/placeholder.png')} 
                           alt="Product" 
                           className="w-20 h-24 rounded-2xl object-cover shadow-lg bg-neutral-100" 
                         />
