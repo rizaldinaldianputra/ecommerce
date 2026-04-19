@@ -7,7 +7,7 @@
 export function formatImageUrl(path: string | null | undefined): string {
   if (!path) return '';
 
-  const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL || 'https://store.zelixa.my.id';
+  const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL || 'https://storage.zelixa.my.id';
   const cleanStorageUrl = storageUrl.endsWith('/') ? storageUrl.slice(0, -1) : storageUrl;
 
   // Handle data URLs directly
@@ -22,14 +22,7 @@ export function formatImageUrl(path: string | null | undefined): string {
   if (matchedEndpoint) {
     const parts = path.split(matchedEndpoint);
     if (parts.length > 1) {
-      let cleanPath = parts[1].startsWith('/') ? parts[1] : `/${parts[1]}`;
-      
-      // OPTIONAL: Strip bucket name if pointing to production domain
-      // If store.zelixa.my.id maps directly to the bucket root
-      if (cleanStorageUrl.includes('store.zelixa.my.id')) {
-        cleanPath = cleanPath.replace(/^\/(zelixa|shekza-bucket)\//, '/');
-      }
-
+      const cleanPath = parts[1].startsWith('/') ? parts[1] : `/${parts[1]}`;
       return `${cleanStorageUrl}${cleanPath.replace(/\.$/, '')}`;
     }
   }
@@ -40,12 +33,7 @@ export function formatImageUrl(path: string | null | undefined): string {
   }
 
   // Prepend storage URL to relative paths
-  let cleanPath = path.startsWith('/') ? path : `/${path}`;
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
   
-  // Also strip bucket name from relative paths if in production
-  if (cleanStorageUrl.includes('store.zelixa.my.id')) {
-    cleanPath = cleanPath.replace(/^\/(zelixa|shekza-bucket)\//, '/');
-  }
-
   return `${cleanStorageUrl}${cleanPath}`;
 }
