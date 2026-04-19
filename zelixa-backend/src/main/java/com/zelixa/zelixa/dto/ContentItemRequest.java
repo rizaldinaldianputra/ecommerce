@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ContentItemRequest {
+    private String type;
+    private String platform;
+    private Boolean isActive;
     private String title;
     private String subtitle;
     private String imageUrl;

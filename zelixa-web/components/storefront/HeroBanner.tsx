@@ -10,10 +10,10 @@ import { slugify } from '@/lib/utils/slug';
 import { formatImageUrl } from '@/lib/url-utils';
 
 interface HeroBannerProps {
-  section?: ContentSection;
+  items?: ContentItem[];
 }
 
-export default function HeroBanner({ section }: HeroBannerProps) {
+export default function HeroBanner({ items }: HeroBannerProps) {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -21,44 +21,35 @@ export default function HeroBanner({ section }: HeroBannerProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    const loadSlides = async () => {
-      try {
-        const targetSection = section || (await ContentService.getActiveSectionsByType('HERO_CAROUSEL'))[0];
-        if (targetSection?.items) {
-          const mapped = targetSection.items.map(item => {
-            const styles = item.styleConfig?.split(',') || ['from-pink-50', 'to-rose-100', 'from-pink-400 to-rose-600'];
-            
-            // Automatic Slug generation for missing linkUrls
-            let ctaLink = item.linkUrl || '';
-            if (!ctaLink && item.title) {
-              ctaLink = `/products/${slugify(item.title)}`;
-            } else if (!ctaLink) {
-              ctaLink = '/products';
-            }
-
-            return {
-              id: item.id || 0,
-              tag: item.tag || '',
-              title: item.title || '',
-              subtitle: item.subtitle || '',
-              cta: item.ctaText || 'Shop Now',
-              ctaLink: ctaLink,
-              bgFrom: styles[0] || 'from-pink-50',
-              bgTo: styles[1] || 'to-rose-100',
-              accent: styles[2] || 'from-pink-400 to-rose-600',
-              image: formatImageUrl(item.imageUrl || ''),
-              badge: item.badgeText || '',
-            };
-          });
-          setSlides(mapped);
-          setIsLoaded(true);
+    if (items) {
+      const mapped = items.map(item => {
+        const styles = item.styleConfig?.split(',') || ['from-pink-50', 'to-rose-100', 'from-pink-400 to-rose-600'];
+        
+        let ctaLink = item.linkUrl || '';
+        if (!ctaLink && item.title) {
+          ctaLink = `/products/${slugify(item.title)}`;
+        } else if (!ctaLink) {
+          ctaLink = '/products';
         }
-      } catch (error) {
-        console.error('Failed to load hero slides', error);
-      }
-    };
-    loadSlides();
-  }, [section]);
+
+        return {
+          id: item.id || 0,
+          tag: item.tag || '',
+          title: item.title || '',
+          subtitle: item.subtitle || '',
+          cta: item.ctaText || 'Shop Now',
+          ctaLink: ctaLink,
+          bgFrom: styles[0] || 'from-pink-50',
+          bgTo: styles[1] || 'to-rose-100',
+          accent: styles[2] || 'from-pink-400 to-rose-600',
+          image: formatImageUrl(item.imageUrl || ''),
+          badge: item.badgeText || '',
+        };
+      });
+      setSlides(mapped);
+      setIsLoaded(true);
+    }
+  }, [items]);
 
   useEffect(() => {
     if (slides.length <= 1 || isHovered) return;

@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ContentItemRepository extends JpaRepository<ContentItem, Long> {
-    List<ContentItem> findBySectionIdOrderByDisplayOrderAsc(Long sectionId);
-    void deleteBySectionId(Long sectionId);
+    List<ContentItem> findByTypeAndPlatformAndIsActiveTrueOrderByCreatedAtDesc(String type, String platform);
+    List<ContentItem> findAllByTypeOrderByCreatedAtDesc(String type);
 }

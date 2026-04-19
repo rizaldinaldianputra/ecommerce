@@ -3,7 +3,8 @@
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileJson, ArrowLeft, Layout, Plus, Monitor } from 'lucide-react';
-import { ContentService, ContentSection } from '@/services/content.service';
+import { ContentService } from '@/services/content.service';
+import { ContentItem } from '@/types/content';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
@@ -31,63 +32,65 @@ export default function WebContentTypeListPage({ params }: PageProps) {
   const { type } = use(params);
   const router = useRouter();
   const { toast } = useToast();
-  const [sections, setSections] = useState<ContentSection[]>([]);
+  const [items, setItems] = useState<ContentItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const typeInfo = TYPE_LABELS[type] || { label: type, description: 'Web content section' };
+  const typeInfo = TYPE_LABELS[type] || { label: type, description: 'Web storefront items' };
 
-  const fetchSections = async () => {
+  const fetchItems = async () => {
     setIsLoading(true);
     try {
-      const data = await ContentService.getByTypeAndPlatform(type, 'WEB');
-      setSections(data);
+      const data = await ContentService.getItemsByType(type, 'WEB', false);
+      setItems(data);
     } catch {
-      toast({ title: 'Error', description: 'Gagal memuat data section', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Gagal memuat data item', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => { fetchSections(); }, [type]);
+  useEffect(() => { fetchItems(); }, [type]);
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Hapus section ini?')) return;
+    if (!confirm('Hapus item ini?')) return;
     try {
-      await ContentService.delete(id);
-      toast({ title: 'Berhasil', description: 'Section dihapus' });
-      fetchSections();
+      await ContentService.deleteItem(id);
+      toast({ title: 'Berhasil', description: 'Item dihapus' });
+      fetchItems();
     } catch {
-      toast({ title: 'Error', description: 'Gagal menghapus section', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Gagal menghapus item', variant: 'destructive' });
     }
   };
 
-  const columns: ColumnDef<ContentSection>[] = [
+  const columns: ColumnDef<ContentItem>[] = [
     {
       accessorKey: 'title',
-      header: 'Section Title',
+      header: 'Item Title',
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 flex-shrink-0">
-            <FileJson size={14} />
+          {row.original.imageUrl ? (
+            <div className="h-10 w-10 rounded-lg overflow-hidden border border-slate-100 flex-shrink-0 bg-slate-50">
+              <img src={row.original.imageUrl} alt="" className="h-full w-full object-cover" />
+            </div>
+          ) : (
+            <div className="h-10 w-10 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 flex-shrink-0">
+              <FileJson size={14} />
+            </div>
+          )}
+          <div className="flex flex-col">
+            <span className="font-bold text-slate-900 dark:text-white tracking-tight">{row.original.title || 'Untitled'}</span>
+            <span className="text-[10px] text-slate-400 font-medium truncate max-w-[200px]">{row.original.subtitle}</span>
           </div>
-          <span className="font-bold text-slate-900 dark:text-white tracking-tight">{row.original.title}</span>
         </div>
       )
     },
     {
-      accessorKey: 'displayOrder',
-      header: 'Order',
+      accessorKey: 'createdAt',
+      header: 'Date Created',
       cell: ({ row }) => (
-        <span className="font-mono text-sm text-slate-500">#{row.original.displayOrder}</span>
-      )
-    },
-    {
-      id: 'items',
-      header: 'Items',
-      cell: ({ row }) => (
-        <Badge variant="outline" className="font-mono text-[10px]">
-          {row.original.items?.length ?? 0} items
-        </Badge>
+        <span className="text-xs font-semibold text-slate-500">
+          {row.original.createdAt ? new Date(row.original.createdAt).toLocaleDateString() : '-'}
+        </span>
       )
     },
     {
@@ -129,17 +132,17 @@ export default function WebContentTypeListPage({ params }: PageProps) {
           href={`/admin/content/web/${type}/new`}
           className="flex items-center gap-2 px-5 py-2.5 bg-pink-500 hover:bg-pink-600 text-white rounded-full text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-pink-500/30 hover:scale-105 active:scale-95"
         >
-          <Plus size={14} /> Tambah Section
+          <Plus size={14} /> Tambah Item
         </Link>
       </div>
 
       <CrudTable
-        data={sections}
+        data={items}
         columns={columns}
-        searchKey="sections"
+        searchKey="items"
         onAdd={() => router.push(`/admin/content/web/${type}/new`)}
-        onEdit={(section) => router.push(`/admin/content/web/${type}/${section.id}`)}
-        onDelete={(section) => handleDelete(section.id!)}
+        onEdit={(item) => router.push(`/admin/content/web/${type}/${item.id}`)}
+        onDelete={(item) => handleDelete(item.id!)}
       />
     </div>
   );

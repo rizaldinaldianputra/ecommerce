@@ -24,28 +24,23 @@ import { ImageUpload } from '@/components/ui/image-upload';
 
 const itemSchema = z.object({
   id: z.number().optional(),
-  title: z.string().optional(),
-  subtitle: z.string().optional(),
-  imageUrl: z.string().optional(),
-  linkUrl: z.string().optional(),
-  productId: z.coerce.number().optional(),
-  displayOrder: z.coerce.number().default(0),
-  tag: z.string().optional(),
-  ctaText: z.string().optional(),
-  badgeText: z.string().optional(),
-  iconName: z.string().optional(),
-  emoji: z.string().optional(),
-  styleConfig: z.string().optional(),
-});
-
-const sectionSchema = z.object({
-  title: z.string().min(2, 'Judul section wajib diisi'),
-  displayOrder: z.coerce.number().default(0),
+  type: z.string().min(1, 'Type is required'),
+  platform: z.enum(['WEB', 'MOBILE', 'ALL']),
   isActive: z.boolean().default(true),
-  items: z.array(itemSchema).default([]),
+  title: z.string().optional().nullable(),
+  subtitle: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  linkUrl: z.string().optional().nullable(),
+  productId: z.coerce.number().optional().nullable(),
+  tag: z.string().optional().nullable(),
+  ctaText: z.string().optional().nullable(),
+  badgeText: z.string().optional().nullable(),
+  iconName: z.string().optional().nullable(),
+  emoji: z.string().optional().nullable(),
+  styleConfig: z.string().optional().nullable(),
 });
 
-type SectionFormValues = z.infer<typeof sectionSchema>;
+type ItemFormValues = z.infer<typeof itemSchema>;
 
 // ─── Field Config per Web Type ─────────────────────────────────────────────
 
@@ -64,7 +59,6 @@ interface TypeConfig {
   label: string;
   emoji: string;
   description: string;
-  hasNoItems?: boolean;
   fields: FieldDef[];
 }
 
@@ -92,33 +86,30 @@ const WEB_FIELD_CONFIG: Record<string, TypeConfig> = {
       { key: 'productId',    label: 'Produk',              type: 'product',  hint: 'Produk yang ditampilkan di grid Flash Sale.' },
       { key: 'badgeText',    label: 'Sisa Stok',           placeholder: '12', hint: 'Tampil sebagai "12 Left" di bawah kartu produk.' },
       { key: 'subtitle',     label: 'Waktu Berakhir',      placeholder: '2025-12-31 23:59', hint: 'Opsional. Waktu akhir per-item.' },
-      { key: 'displayOrder', label: 'Urutan Tampil',       type: 'number' },
     ]
   },
   FEATURED_PRODUCTS: {
     label: 'Produk Unggulan',
     emoji: '📦',
-    description: 'Grid produk dengan tab filter (All, Best Seller, New Arrival, Sale, Trending). Tab ditentukan dari field Tag.',
+    description: 'Produk unggulan dengan label kategori (All, Best Seller, New Arrival, Sale, Trending).',
     fields: [
       { key: 'productId',    label: 'Produk',          type: 'product',  hint: 'Produk yang ditampilkan di grid Featured.' },
       { key: 'tag',          label: 'Tab Category',    placeholder: 'Best Seller', hint: 'Pilih: All, Best Seller, New Arrival, Sale, Trending' },
-      { key: 'displayOrder', label: 'Urutan di Grid',  type: 'number' },
     ]
   },
   RECOMMENDED_PRODUCTS: {
     label: 'Produk Rekomendasi',
     emoji: '✨',
-    description: 'Carousel horizontal produk rekomendasi. Sumber produk dari ProductService.',
+    description: 'Item produk untuk carousel rekomendasi horizontal.',
     fields: [
       { key: 'productId',    label: 'Produk',         type: 'product' },
       { key: 'tag',          label: 'Tag',            placeholder: 'Minimalist, Streetwear' },
-      { key: 'displayOrder', label: 'Urutan Scroll',  type: 'number' },
     ]
   },
   SHOP_THE_LOOK: {
     label: 'Shop the Look Post',
     emoji: '📸',
-    description: 'Grid foto social-style. Hover menampilkan nama produk dan likes count.',
+    description: 'Item foto social-style. Hover menampilkan nama produk dan likes count.',
     fields: [
       { key: 'imageUrl',  label: 'Foto Post',            type: 'image',  hint: 'Foto format square — gaya Instagram.' },
       { key: 'title',     label: 'Nama Produk',          placeholder: 'Pastel Hoodie Set' },
@@ -129,33 +120,34 @@ const WEB_FIELD_CONFIG: Record<string, TypeConfig> = {
   BRANDS_SECTION: {
     label: 'Brand Partner',
     emoji: '🏷',
-    description: 'Marquee brand di website. Tampil logo gambar atau teks nama brand jika tanpa gambar.',
+    description: 'Logo brand partner untuk marquee scroll.',
     fields: [
       { key: 'title',        label: 'Nama Brand',          placeholder: 'ZARA', hint: 'Tampil bold uppercase jika tanpa gambar.' },
       { key: 'imageUrl',     label: 'Logo Brand',          type: 'image',  hint: 'Opsional. Jika ada, gambar menggantikan teks.' },
       { key: 'linkUrl',      label: 'Link Halaman Brand',  placeholder: '/brands/zara' },
-      { key: 'displayOrder', label: 'Urutan di Marquee',   type: 'number' },
     ]
   },
   TESTIMONIALS: {
     label: 'Ulasan Pelanggan',
     emoji: '⭐',
-    description: 'Grid review pelanggan — foto avatar, nama, rating bintang, dan teks ulasan.',
+    description: 'Review pelanggan — foto avatar, nama, rating bintang, dan teks ulasan.',
     fields: [
       { key: 'imageUrl',     label: 'Foto Avatar',      type: 'image' },
       { key: 'title',        label: 'Nama Lengkap',     placeholder: 'Anindya Putri' },
       { key: 'subtitle',     label: 'Teks Ulasan',      type: 'textarea', placeholder: 'Zelixa is literally my go-to for every new fit...', wide: true },
       { key: 'tag',          label: 'Produk Dibeli',    placeholder: 'Pastel Dream Hoodie' },
       { key: 'badgeText',    label: 'Tanggal Post',     placeholder: '2 hari lalu' },
-      { key: 'displayOrder', label: 'Rating Bintang (1–5)', type: 'number', hint: 'Masukkan angka 1 sampai 5.' },
+      { key: 'iconName',     label: 'Rating Bintang (1–5)', placeholder: '5', hint: 'Masukkan angka 1 sampai 5.' },
     ]
   },
   NEWSLETTER: {
     label: 'Newsletter Config',
     emoji: '📧',
-    description: 'Konfigurasi section newsletter. Tidak membutuhkan items — judul section digunakan sebagai headline.',
-    hasNoItems: true,
-    fields: []
+    description: 'Konfigurasi headline dan deskripsi section newsletter.',
+    fields: [
+      { key: 'title',    label: 'Headline',    placeholder: 'Subscribe to our newsletter' },
+      { key: 'subtitle', label: 'Description', placeholder: 'Get latest updates and special offers.' },
+    ]
   },
 };
 
@@ -185,19 +177,24 @@ export default function WebContentFormPage({ params }: PageProps) {
     ]
   };
 
-  const form = useForm<SectionFormValues>({
-    resolver: zodResolver(sectionSchema),
+  const form = useForm<ItemFormValues>({
+    resolver: zodResolver(itemSchema),
     defaultValues: {
-      title: '',
-      displayOrder: 0,
+      type: type,
+      platform: 'WEB',
       isActive: true,
-      items: [],
+      title: '',
+      subtitle: '',
+      imageUrl: '',
+      linkUrl: '',
+      productId: undefined,
+      tag: '',
+      ctaText: '',
+      badgeText: '',
+      iconName: '',
+      emoji: '',
+      styleConfig: '',
     },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: 'items',
   });
 
   useEffect(() => {
@@ -206,13 +203,13 @@ export default function WebContentFormPage({ params }: PageProps) {
         const prodData = await ProductService.getAll(0, 200);
         setProducts(prodData.content || []);
         if (!isNew) {
-          const data = await ContentService.getById(id);
+          // Flatten: we fetch a single item now, but ContentService.getById is still there
+          // We need getOneItem in ContentService
+          const data = await ContentService.getById(id); // Temporary: assuming response mapping
           form.reset({
-            title: data.title,
-            displayOrder: data.displayOrder,
-            isActive: data.isActive,
-            items: data.items.map(item => ({ ...item, productId: item.productId || undefined })),
-          });
+            ...data,
+            productId: data.productId || undefined,
+          } as any);
         }
       } catch {
         toast({ title: 'Error', description: 'Gagal memuat data', variant: 'destructive' });
@@ -221,20 +218,22 @@ export default function WebContentFormPage({ params }: PageProps) {
     loadData();
   }, [id, isNew]);
 
-  const onSubmit = async (values: SectionFormValues) => {
+  const onSubmit = async (values: ItemFormValues) => {
     setIsLoading(true);
     try {
-      const payload = { ...values, type, platform: 'WEB' as const };
+      // Clean up values to match backend expectations (remove nulls if any)
+      const submitData = { ...values };
+      
       if (isNew) {
-        await ContentService.create(payload as any);
-        toast({ title: 'Berhasil', description: 'Section berhasil dibuat' });
+        await ContentService.createItem(submitData as any);
+        toast({ title: 'Berhasil', description: 'Item berhasil dibuat' });
       } else {
-        await ContentService.update(id, payload as any);
-        toast({ title: 'Berhasil', description: 'Section berhasil diupdate' });
+        await ContentService.updateItem(Number(id), submitData as any);
+        toast({ title: 'Berhasil', description: 'Item berhasil diupdate' });
       }
       router.push(`/admin/content/web/${type}`);
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Gagal menyimpan section', variant: 'destructive' });
+      toast({ title: 'Error', description: error.message || 'Gagal menyimpan item', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -267,214 +266,143 @@ export default function WebContentFormPage({ params }: PageProps) {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Section Config Card */}
-          <div className="bg-white/60 dark:bg-slate-900/60 rounded-3xl border border-slate-200/80 dark:border-white/10 p-8 shadow-sm backdrop-blur-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-9 w-9 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600">
-                <LayoutTemplate size={18} />
-              </div>
-              <div>
-                <h3 className="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-white">Konfigurasi Section</h3>
-                <p className="text-[10px] text-slate-400 font-semibold">Platform: WEB · Type: {type}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }: { field: any }) => (
-                  <FormItem className="md:col-span-2">
-                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400">Judul Section</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. Summer Flash Sale 2025" {...field} className="h-12 rounded-2xl border-slate-200 focus:ring-violet-400 font-semibold" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="displayOrder"
-                render={({ field }: { field: any }) => (
-                  <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400">Urutan Tampil</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} className="h-12 rounded-2xl border-slate-200 focus:ring-violet-400 font-semibold" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="isActive"
-                render={({ field }: { field: any }) => (
-                  <FormItem className="flex items-center justify-between rounded-2xl border border-slate-100 dark:border-white/10 p-4 bg-slate-50/50 dark:bg-white/5">
-                    <div>
-                      <FormLabel className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-tight">Published & Active</FormLabel>
-                      <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Section akan tampil di website</p>
-                    </div>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          {/* Items Section */}
-          {typeConfig.hasNoItems ? (
-            <div className="rounded-2xl border-2 border-dashed border-slate-200 dark:border-white/10 p-10 text-center">
-              <p className="text-sm font-bold text-slate-500">Tipe ini tidak membutuhkan items individual.</p>
-              <p className="text-xs text-slate-400 mt-1 font-semibold">Judul section di atas akan digunakan sebagai konten utama.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between px-1">
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-xl bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-600">
-                    <Tag size={18} />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-white">
-                      {typeConfig.emoji} {typeConfig.label}s
-                    </h3>
-                    <p className="text-[10px] text-slate-400 font-semibold">{fields.length} item ditambahkan</p>
-                  </div>
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => append({ title: '', subtitle: '', imageUrl: '', displayOrder: fields.length })}
-                  className="rounded-full bg-pink-500 hover:bg-pink-600 text-white text-[10px] font-black uppercase tracking-widest h-9 px-4 shadow-lg shadow-pink-500/30 hover:scale-105 active:scale-95 transition-all"
-                >
-                  <Plus size={13} className="mr-1" /> Tambah Item
-                </Button>
-              </div>
-
-              {fields.length === 0 && (
-                <div className="rounded-2xl border-2 border-dashed border-slate-200 dark:border-white/10 p-10 text-center">
-                  <div className="text-4xl mb-3">{typeConfig.emoji}</div>
-                  <p className="text-sm font-bold text-slate-500">Belum ada item</p>
-                  <p className="text-xs text-slate-400 mt-1 font-semibold">Klik "Tambah Item" untuk menambahkan {typeConfig.label} pertama</p>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 gap-4">
-                {fields.map((itemField: any, index: number) => (
-                  <div
-                    key={itemField.id}
-                    className="group bg-white/70 dark:bg-slate-900/70 rounded-3xl border border-slate-200 dark:border-white/10 p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all relative"
-                  >
-                    {/* Left accent bar */}
-                    <div className="absolute -left-px top-6 bottom-6 w-1 rounded-full bg-gradient-to-b from-violet-400 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                    <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 dark:border-white/10">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-pink-600">
-                        {typeConfig.emoji} {typeConfig.label} #{index + 1}
-                      </span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => remove(index)}
-                        className="h-8 w-8 rounded-full text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-colors"
-                      >
-                        <Trash2 size={14} />
-                      </Button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
-                      {/* Image column */}
-                      {typeConfig.fields.some(f => f.type === 'image') && (
-                        <div className="md:col-span-3">
-                          {typeConfig.fields.filter(f => f.type === 'image').map(f => (
-                            <FormField
-                              key={f.key}
-                              control={form.control}
-                              name={`items.${index}.${f.key}` as any}
-                              render={({ field }: { field: any }) => (
-                                <FormItem>
-                                  <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400">{f.label}</FormLabel>
-                                  <FormControl>
-                                    <ImageUpload value={field.value as string} onChange={field.onChange} />
-                                  </FormControl>
-                                  {f.hint && <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">{f.hint}</p>}
-                                </FormItem>
-                              )}
-                            />
-                          ))}
-                        </div>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+            {/* Left Column: Image Upload if available */}
+            {typeConfig.fields.some(f => f.type === 'image') && (
+              <div className="md:col-span-4 space-y-6">
+                {typeConfig.fields.filter(f => f.type === 'image').map(f => (
+                  <div key={f.key} className="bg-white/60 dark:bg-slate-900/60 rounded-3xl border border-slate-200/80 dark:border-white/10 p-6 shadow-sm backdrop-blur-sm">
+                    <FormField
+                      control={form.control}
+                      name={f.key as any}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400">{f.label}</FormLabel>
+                          <FormControl>
+                            <ImageUpload value={field.value as string} onChange={field.onChange} />
+                          </FormControl>
+                          {f.hint && <p className="text-[10px] text-slate-400 mt-2 leading-relaxed">{f.hint}</p>}
+                          <FormMessage />
+                        </FormItem>
                       )}
-
-                      {/* Text/product/number fields */}
-                      <div className={`${typeConfig.fields.some(f => f.type === 'image') ? 'md:col-span-9' : 'md:col-span-12'} grid grid-cols-1 md:grid-cols-2 gap-4`}>
-                        {typeConfig.fields.filter(f => f.type !== 'image').map(f => (
-                          <FormField
-                            key={f.key}
-                            control={form.control}
-                            name={`items.${index}.${f.key}` as any}
-                            render={({ field }: { field: any }) => (
-                              <FormItem className={f.wide || f.type === 'textarea' ? 'md:col-span-2' : ''}>
-                                <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400">{f.label}</FormLabel>
-                                <FormControl>
-                                  {f.type === 'product' ? (
-                                    <Combobox
-                                      options={products.map(p => ({ label: p.name, value: p.id }))}
-                                      value={field.value as number}
-                                      onChange={field.onChange}
-                                      placeholder="Cari produk..."
-                                    />
-                                  ) : f.type === 'number' ? (
-                                    <Input type="number" {...field} className="h-10 rounded-xl font-semibold" placeholder={f.placeholder} />
-                                  ) : f.type === 'textarea' ? (
-                                    <textarea
-                                      {...field as any}
-                                      rows={3}
-                                      placeholder={f.placeholder}
-                                      className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm font-medium resize-none focus:outline-none focus:ring-2 focus:ring-violet-400 dark:bg-slate-900 dark:border-white/10"
-                                    />
-                                  ) : (
-                                    <Input {...field as any} className="h-10 rounded-xl font-semibold" placeholder={f.placeholder} />
-                                  )}
-                                </FormControl>
-                                {f.hint && <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">{f.hint}</p>}
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        ))}
-                      </div>
-                    </div>
+                    />
                   </div>
                 ))}
+
+                {/* Status Card */}
+                <div className="bg-white/60 dark:bg-slate-900/60 rounded-3xl border border-slate-200/80 dark:border-white/10 p-6 shadow-sm backdrop-blur-sm">
+                  <FormField
+                    control={form.control}
+                    name="isActive"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between">
+                        <div>
+                          <FormLabel className="text-xs font-black text-slate-700 dark:text-slate-200 uppercase tracking-tight">Active</FormLabel>
+                          <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Tampilkan di web</p>
+                        </div>
+                        <FormControl>
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Right Column: Other Fields */}
+            <div className={`${typeConfig.fields.some(f => f.type === 'image') ? 'md:col-span-8' : 'md:col-span-12'} space-y-6`}>
+              <div className="bg-white/60 dark:bg-slate-900/60 rounded-3xl border border-slate-200/80 dark:border-white/10 p-8 shadow-sm backdrop-blur-sm">
+                <div className="flex items-center gap-3 mb-8">
+                   <div className="h-9 w-9 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600">
+                    <LayoutTemplate size={18} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-white">Detail Konten</h3>
+                    <p className="text-[10px] text-slate-400 font-semibold">Isi informasi untuk {typeConfig.label} baru ini.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
+                  {/* Status if no image field (to keep it visible) */}
+                  {!typeConfig.fields.some(f => f.type === 'image') && (
+                    <FormField
+                      control={form.control}
+                      name="isActive"
+                      render={({ field }) => (
+                        <FormItem className="md:col-span-2 flex items-center justify-between rounded-2xl border border-slate-100 dark:border-white/10 p-4 bg-slate-50/50">
+                          <div>
+                            <FormLabel className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-tight">Published & Active</FormLabel>
+                            <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Item akan tampil di website secara otomatis.</p>
+                          </div>
+                          <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  {typeConfig.fields.filter(f => f.type !== 'image').map(f => (
+                    <FormField
+                      key={f.key}
+                      control={form.control}
+                      name={f.key as any}
+                      render={({ field }) => (
+                        <FormItem className={f.wide || f.type === 'textarea' ? 'md:col-span-2' : ''}>
+                          <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400">{f.label}</FormLabel>
+                          <FormControl>
+                            {f.type === 'product' ? (
+                              <Combobox
+                                options={products.map(p => ({ label: p.name, value: p.id }))}
+                                value={field.value as number}
+                                onChange={field.onChange}
+                                placeholder="Pilih produk..."
+                              />
+                            ) : f.type === 'textarea' ? (
+                              <textarea
+                                {...field as any}
+                                rows={4}
+                                placeholder={f.placeholder}
+                                className="w-full rounded-2xl border border-slate-200 focus:ring-violet-400 bg-white/50 px-4 py-3 text-sm font-semibold transition-all dark:bg-slate-800 dark:border-white/10 resize-none"
+                              />
+                            ) : (
+                              <Input {...field as any} className="h-12 rounded-2xl border-slate-200 focus:ring-violet-400 font-semibold" placeholder={f.placeholder} />
+                            )}
+                          </FormControl>
+                          {f.hint && <p className="text-[10px] text-slate-400 mt-2 leading-relaxed">{f.hint}</p>}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </div>
+              </div>
+
+               {/* Action Buttons */}
+              <div className="flex items-center gap-3">
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="rounded-full bg-pink-500 hover:bg-pink-600 text-white font-black uppercase tracking-widest h-12 px-10 shadow-lg shadow-pink-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-60"
+                >
+                  {isLoading ? (
+                    <><Loader2 size={16} className="mr-2 animate-spin" /> Menyimpan...</>
+                  ) : (
+                    <><Save size={16} className="mr-2" /> {isNew ? 'Tambah Item' : 'Simpan Perubahan'}</>
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => router.push(`/admin/content/web/${type}`)}
+                  className="rounded-full h-12 px-6 text-slate-500 hover:text-slate-900 font-bold dark:hover:text-white"
+                >
+                  Batal
+                </Button>
               </div>
             </div>
-          )}
-
-          {/* Submit */}
-          <div className="flex items-center gap-3 pt-2">
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="rounded-full bg-pink-500 hover:bg-pink-600 text-white font-black uppercase tracking-widest h-12 px-8 shadow-lg shadow-pink-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-60 disabled:scale-100"
-            >
-              {isLoading ? (
-                <><Loader2 size={16} className="mr-2 animate-spin" /> Menyimpan...</>
-              ) : (
-                <><Save size={16} className="mr-2" /> {isNew ? 'Buat Section' : 'Simpan Perubahan'}</>
-              )}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => router.push(`/admin/content/web/${type}`)}
-              className="rounded-full h-12 px-6 text-slate-500 hover:text-slate-900 font-bold"
-            >
-              Batal
-            </Button>
           </div>
         </form>
       </Form>

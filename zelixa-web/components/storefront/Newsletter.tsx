@@ -4,9 +4,16 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, CheckCircle, ArrowRight } from 'lucide-react';
 
-export default function NewsletterSection() {
+import { ContentItem } from '@/types/content';
+
+export default function NewsletterSection({ items }: { items?: ContentItem[] }) {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  
+  const config = items?.[0] || {
+    title: 'Subscribe & Get 10% OFF',
+    subtitle: 'Join our newsletter to get latest updates and exclusive offers.'
+  };
 
   return (
     <section className="py-20 bg-neutral-900">
@@ -14,8 +21,8 @@ export default function NewsletterSection() {
         <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6">
           <Mail size={24} className="text-neutral-400" />
         </div>
-        <h2 className="text-3xl font-bold text-white mb-4">Subscribe & Get 10% OFF</h2>
-        <p className="text-neutral-400 text-base mb-8">Join our newsletter to get latest updates and exclusive offers.</p>
+        <h2 className="text-3xl font-bold text-white mb-4">{config.title}</h2>
+        <p className="text-neutral-400 text-base mb-8">{config.subtitle}</p>
 
         <AnimatePresence mode="wait">
           {submitted ? (

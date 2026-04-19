@@ -7,12 +7,11 @@ import ProductCard from './ProductCard';
 import { ContentService } from '@/services/content.service';
 import { ProductService } from '@/services/product.service';
 import { Product } from '@/types/product';
-import { FeaturedProductsProps } from '@/types/content';
-import { slugify } from '@/lib/utils/slug';
+import { ContentItem } from '@/types/content';
 
 const categories = ['All', 'Best Seller', 'New Arrival', 'Sale', 'Trending'];
 
-export default function FeaturedProducts({ section }: FeaturedProductsProps) {
+export default function FeaturedProducts({ items }: { items?: ContentItem[] }) {
   const [activeTab, setActiveTab] = useState('All');
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,32 +20,28 @@ export default function FeaturedProducts({ section }: FeaturedProductsProps) {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        if (section?.items && section.items.length > 0) {
-          const mappedProducts = section.items.map(item => {
-            let slug = item.linkUrl?.split('/').pop() || '';
-            if (!slug && item.title) {
-              slug = slugify(item.title);
-            }
+        if (items && items.length > 0) {
+          // If we have items from CMS, filter by tab (tag)
+          const filtered = activeTab === 'All' 
+            ? items 
+            : items.filter(item => item.tag === activeTab);
 
-            return {
-              id: item.id || 0,
-              name: item.title || '',
-              price: 0,
-              slug: slug,
-              imageUrl: item.imageUrl || '',
-              variants: [],
-              categoryId: 0,
-              isActive: true,
-              isFeatured: true,
-              isTopProduct: false,
-              isBestSeller: false,
-              isRecommended: false,
-            };
-          });
+          const mappedProducts = filtered.map(item => ({
+            id: item.id || 0,
+            name: item.title || '',
+            price: 0, // CMS items might not have price, component should handle
+            slug: item.linkUrl?.split('/').pop() || '',
+            imageUrl: item.imageUrl || '',
+            variants: [],
+            isActive: true,
+            isFeatured: true,
+            category: item.tag || 'All',
+          }));
           setProducts(mappedProducts as any);
           return;
         }
 
+        // Fallback to ProductService if no CMS items
         let productData: Product[] = [];
         switch (activeTab) {
           case 'Best Seller':  productData = await ProductService.getBestSellers(8); break;
@@ -76,7 +71,7 @@ export default function FeaturedProducts({ section }: FeaturedProductsProps) {
       }
     };
     loadData();
-  }, [activeTab, section]);
+  }, [activeTab, items]);
 
   return (
     <section className="py-20 relative bg-white">

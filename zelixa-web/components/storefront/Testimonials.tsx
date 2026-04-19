@@ -2,13 +2,13 @@
 
 import { motion } from 'framer-motion';
 import { Star, CheckCircle2 } from 'lucide-react';
-import { TestimonialsProps } from '@/types/content';
+import { ContentItem } from '@/types/content';
 
-export default function Testimonials({ section }: TestimonialsProps) {
-  const displayTestimonials = section?.items?.map(item => ({
+export default function Testimonials({ items }: { items?: ContentItem[] }) {
+  const displayTestimonials = items?.map(item => ({
     name: item.title || '',
     img: item.imageUrl || '',
-    rating: 5,
+    rating: parseInt(item.iconName || '5'),
     text: item.subtitle || '',
   })) || [
     { name: 'Anindya Putri', img: '', rating: 5, text: 'Zelixa is literally my go-to for every new fit. Quality is unreal!' },

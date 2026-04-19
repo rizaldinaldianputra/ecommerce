@@ -5,10 +5,10 @@ import { Instagram, ShoppingBag, Eye, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ContentService } from '@/services/content.service';
-import { SocialSectionProps } from '@/types/content';
+import { ContentItem } from '@/types/content';
 import { formatImageUrl } from '@/lib/url-utils';
 
-export default function SocialSection({ section }: SocialSectionProps) {
+export default function SocialSection({ items }: { items?: ContentItem[] }) {
   const [posts, setPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -16,9 +16,9 @@ export default function SocialSection({ section }: SocialSectionProps) {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const targetSection = section || (await ContentService.getActiveSectionsByType('SHOP_THE_LOOK'))[0];
-        if (targetSection?.items) {
-          const mapped = targetSection.items.map(item => ({
+        const displayItems = items || (await ContentService.getItemsByType('SHOP_THE_LOOK'));
+        if (displayItems) {
+          const mapped = displayItems.map(item => ({
             id: item.id,
             image: formatImageUrl(item.imageUrl || ''),
             likes: item.badgeText || '0',
@@ -34,7 +34,7 @@ export default function SocialSection({ section }: SocialSectionProps) {
       }
     };
     loadData();
-  }, [section]);
+  }, [items]);
 
   return (
     <section className="py-20 bg-neutral-50">

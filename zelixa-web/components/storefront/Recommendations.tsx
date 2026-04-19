@@ -6,9 +6,9 @@ import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import ProductCard from './ProductCard';
 import { ContentService } from '@/services/content.service';
 import { ProductService } from '@/services/product.service';
-import { RecommendationsProps } from '@/types/content';
+import { ContentItem } from '@/types/content';
 
-export default function Recommendations({ section }: RecommendationsProps) {
+export default function Recommendations({ items }: { items?: ContentItem[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -17,8 +17,8 @@ export default function Recommendations({ section }: RecommendationsProps) {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        if (section?.items && section.items.length > 0) {
-          const mapped = section.items.map(item => ({
+        if (items && items.length > 0) {
+          const mapped = items.map(item => ({
             id: item.id || 0,
             name: item.title || '',
             price: 0,
@@ -53,7 +53,7 @@ export default function Recommendations({ section }: RecommendationsProps) {
       }
     };
     loadData();
-  }, [section]);
+  }, [items]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {

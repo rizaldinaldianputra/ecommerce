@@ -16,60 +16,54 @@ export const metadata: Metadata = {
 };
 
 export default async function StorefrontHome() {
-  const allSections = await ContentService.getStorefrontSections();
-
-  // Explicitly separate Hero Carousel from other sections to ensure it's always at the top
-  const heroSection = allSections.find(s => s.type === 'HERO_CAROUSEL');
-  const otherSections = allSections.filter(s => s.type !== 'HERO_CAROUSEL');
-
-  if (!allSections || allSections.length === 0) {
-    return (
-      <>
-        <SeoScript pageName="HOME" />
-        <HeroBanner />
-        <FeaturedProducts />
-        <FlashSale />
-        <Recommendations />
-        <BrandsSection />
-        <Testimonials />
-        <SocialSection />
-        <Newsletter />
-      </>
-    );
-  }
+  // Fetch all core content types in parallel
+  const [
+    heroItems,
+    featuredItems,
+    flashSaleItems,
+    recommendedItems,
+    brandItems,
+    testimonialItems,
+    socialItems,
+    newsletterItems
+  ] = await Promise.all([
+    ContentService.getItemsByType('HERO_CAROUSEL'),
+    ContentService.getItemsByType('FEATURED_PRODUCTS'),
+    ContentService.getItemsByType('FLASH_SALE_WEB'),
+    ContentService.getItemsByType('RECOMMENDED_PRODUCTS'),
+    ContentService.getItemsByType('BRANDS_SECTION'),
+    ContentService.getItemsByType('TESTIMONIALS'),
+    ContentService.getItemsByType('SHOP_THE_LOOK'),
+    ContentService.getItemsByType('NEWSLETTER')
+  ]);
 
   return (
     <>
       <SeoScript pageName="HOME" />
       
-      {/* Hero Carousel always comes first */}
-      {heroSection && <HeroBanner key={heroSection.id} section={heroSection} />}
-      {!heroSection && <HeroBanner />} {/* Fallback if no hero in CMS */}
+      {/* 1. Hero Carousel */}
+      <HeroBanner items={heroItems} />
 
-      {/* Render the rest of the sections */}
-      {otherSections.map((section) => {
-        switch (section.type) {
-          case 'FEATURED_PRODUCTS':
-            return <FeaturedProducts key={section.id} section={section} />;
-          case 'FLASH_SALE':
-          case 'FLASH_SALE_WEB':
-            return <FlashSale key={section.id} section={section} />;
-          case 'RECOMMENDATIONS':
-          case 'RECOMMENDED_PRODUCTS':
-            return <Recommendations key={section.id} section={section} />;
-          case 'BRANDS_MARQUEE':
-          case 'BRANDS_SECTION':
-            return <BrandsSection key={section.id} section={section} />;
-          case 'TESTIMONIALS':
-            return <Testimonials key={section.id} section={section} />;
-          case 'SHOP_THE_LOOK':
-            return <SocialSection key={section.id} section={section} />;
-          default:
-            return null;
-        }
-      })}
+      {/* 2. Featured Products */}
+      {featuredItems.length > 0 && <FeaturedProducts items={featuredItems} />}
 
-      <Newsletter />
+      {/* 3. Flash Sale */}
+      {flashSaleItems.length > 0 && <FlashSale items={flashSaleItems} />}
+
+      {/* 4. Recommendations */}
+      {recommendedItems.length > 0 && <Recommendations items={recommendedItems} />}
+
+      {/* 5. Brands Section */}
+      {brandItems.length > 0 && <BrandsSection items={brandItems} />}
+
+      {/* 6. Shop the Look (Social) */}
+      {socialItems.length > 0 && <SocialSection items={socialItems} />}
+
+      {/* 7. Testimonials */}
+      {testimonialItems.length > 0 && <Testimonials items={testimonialItems} />}
+
+      {/* 8. Newsletter */}
+      <Newsletter items={newsletterItems} />
     </>
   );
 }

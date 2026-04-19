@@ -5,10 +5,10 @@ import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import ProductCard from './ProductCard';
 import { Zap, Clock, Flame } from 'lucide-react';
 import { ContentService } from '@/services/content.service';
-import { FlashSaleProps } from '@/types/content';
+import { ContentItem } from '@/types/content';
 import { formatImageUrl } from '@/lib/url-utils';
 
-export default function FlashSale({ section }: FlashSaleProps) {
+export default function FlashSale({ items }: { items?: ContentItem[] }) {
   const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 34, seconds: 12 });
   const [products, setProducts] = useState<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -20,8 +20,8 @@ export default function FlashSale({ section }: FlashSaleProps) {
   const orb3Y = useSpring(useTransform(scrollYProgress, [0, 1], [-60, 160]),  { stiffness: 40, damping: 15 });
 
   useEffect(() => {
-    if (section?.items) {
-      const mapped = section.items.map(item => ({
+    if (items) {
+      const mapped = items.map(item => ({
         id: item.id || 0,
         name: item.title || '',
         price: 0,
@@ -42,7 +42,7 @@ export default function FlashSale({ section }: FlashSaleProps) {
     } else {
       setIsLoaded(true);
     }
-  }, [section]);
+  }, [items]);
 
   useEffect(() => {
     const timer = setInterval(() => {

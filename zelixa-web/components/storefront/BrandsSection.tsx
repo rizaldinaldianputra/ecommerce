@@ -1,10 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { BrandsSectionProps } from '@/types/content';
+import { ContentItem } from '@/types/content';
 
-export default function BrandsSection({ section }: BrandsSectionProps) {
-  const displayBrands = section?.items?.map(item => ({
+export default function BrandsSection({ items }: { items?: ContentItem[] }) {
+  const displayBrands = items?.map(item => ({
     name: item.title || '',
     logo: item.imageUrl || item.emoji || item.title || ''
   })) || [

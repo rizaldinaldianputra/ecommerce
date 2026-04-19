@@ -18,9 +18,24 @@ public class ContentItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "section_id", nullable = false)
-    private ContentSection section;
+    @Column(length = 50)
+    private String type;
+
+    @Column(length = 20)
+    @Builder.Default
+    private String platform = "WEB";
+
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    private Boolean isActive = true;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private java.time.LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = java.time.LocalDateTime.now();
+    }
 
     @Column(length = 255)
     private String title;

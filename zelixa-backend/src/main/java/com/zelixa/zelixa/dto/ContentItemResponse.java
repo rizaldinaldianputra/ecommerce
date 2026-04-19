@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ContentItemResponse {
     private Long id;
+    private String type;
+    private String platform;
+    private Boolean isActive;
     private String title;
     private String subtitle;
     private String imageUrl;

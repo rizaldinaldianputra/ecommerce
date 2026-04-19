@@ -14,17 +14,8 @@ export interface ContentItem {
   productId?: number;
   styleConfig?: string;
   displayOrder?: number;
-}
-
-export interface ContentSection {
-  id?: number;
-  platform: 'WEB' | 'MOBILE' | 'ALL';
-  type: string;
-  title?: string;
-  subtitle?: string;
-  displayOrder: number;
-  isActive: boolean;
-  items: ContentItem[];
+  isActive?: boolean;
+  createdAt?: string;
 }
 
 export interface Slide {
@@ -39,28 +30,4 @@ export interface Slide {
   accent: string;
   image: string;
   badge: string;
-}
-
-export interface FeaturedProductsProps {
-  section?: ContentSection;
-}
-
-export interface FlashSaleProps {
-  section?: ContentSection;
-}
-
-export interface BrandsSectionProps {
-  section?: ContentSection;
-}
-
-export interface TestimonialsProps {
-  section?: ContentSection;
-}
-
-export interface SocialSectionProps {
-  section?: ContentSection;
-}
-
-export interface RecommendationsProps {
-  section?: ContentSection;
 }
