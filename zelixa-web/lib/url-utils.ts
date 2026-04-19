@@ -15,16 +15,22 @@ export function formatImageUrl(path: string | null | undefined): string {
     return path;
   }
 
-  // REPAIR LOGIC: If it contains minio:9000 (even if it's already an absolute URL)
-  // replace that part with the public domain.
-  if (path.includes('minio:9000')) {
-    const parts = path.split('minio:9000');
+  // REPAIR LOGIC: If it contains internal/local storage endpoints
+  const internalEndpoints = ['minio:9000', 'localhost:9000', '127.0.0.1:9000'];
+  const matchedEndpoint = internalEndpoints.find(endpoint => path.includes(endpoint));
+  
+  if (matchedEndpoint) {
+    const parts = path.split(matchedEndpoint);
     if (parts.length > 1) {
-      // The part after minio:9000 might already have a slash
-      const cleanPath = parts[1].startsWith('/') ? parts[1] : `/${parts[1]}`;
-      // Clean up any trailing dots or punctuation that might have been copied in the URL
-      const finalPath = cleanPath.replace(/\.$/, '');
-      return `${cleanStorageUrl}${finalPath}`;
+      let cleanPath = parts[1].startsWith('/') ? parts[1] : `/${parts[1]}`;
+      
+      // OPTIONAL: Strip bucket name if pointing to production domain
+      // If store.zelixa.my.id maps directly to the bucket root
+      if (cleanStorageUrl.includes('store.zelixa.my.id')) {
+        cleanPath = cleanPath.replace(/^\/(zelixa|shekza-bucket)\//, '/');
+      }
+
+      return `${cleanStorageUrl}${cleanPath.replace(/\.$/, '')}`;
     }
   }
 
@@ -34,7 +40,12 @@ export function formatImageUrl(path: string | null | undefined): string {
   }
 
   // Prepend storage URL to relative paths
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  let cleanPath = path.startsWith('/') ? path : `/${path}`;
+  
+  // Also strip bucket name from relative paths if in production
+  if (cleanStorageUrl.includes('store.zelixa.my.id')) {
+    cleanPath = cleanPath.replace(/^\/(zelixa|shekza-bucket)\//, '/');
+  }
 
   return `${cleanStorageUrl}${cleanPath}`;
 }
