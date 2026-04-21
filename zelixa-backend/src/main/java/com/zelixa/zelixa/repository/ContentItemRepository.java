@@ -10,4 +10,6 @@ import java.util.List;
 public interface ContentItemRepository extends JpaRepository<ContentItem, Long> {
     List<ContentItem> findByTypeAndPlatformAndIsActiveTrueOrderByCreatedAtDesc(String type, String platform);
     List<ContentItem> findAllByTypeOrderByCreatedAtDesc(String type);
+    List<ContentItem> findByPlatformOrderByCreatedAtDesc(String platform);
+    List<ContentItem> findAllByOrderByCreatedAtDesc();
 }

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../config/app_style.dart';
-import '../../models/news_model.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-class NewsDetailPage extends StatelessWidget {
-  final NewsModel newsData;
+import '../../models/content_section_model.dart';
 
-  const NewsDetailPage({super.key, required this.newsData});
+class NewsDetailPage extends StatelessWidget {
+  final ContentItem news;
+  const NewsDetailPage({super.key, required this.news});
 
   @override
   Widget build(BuildContext context) {
@@ -14,26 +13,12 @@ class NewsDetailPage extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 250,
+            expandedHeight: 240,
             pinned: true,
-            backgroundColor: Colors.white,
-            elevation: 0,
-            leading: IconButton(
-              icon: const CircleAvatar(
-                backgroundColor: Colors.white70,
-                child: Icon(Icons.arrow_back, color: Colors.black),
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
             flexibleSpace: FlexibleSpaceBar(
               background: Image.network(
-                newsData.imageUrl ?? 'https://picsum.photos/600/300',
+                news.bannerUrl ?? news.imageUrl ?? 'https://picsum.photos/800/400',
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: Colors.grey,
-                  width: double.infinity,
-                  height: double.infinity,
-                ),
               ),
             ),
           ),
@@ -43,107 +28,42 @@ class NewsDetailPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(
+                    news.title ?? 'News Update',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
-                      CircleAvatar(
-                        radius: 12,
-                        backgroundColor: AppColors.primary.withOpacity(0.1),
-                        child: Icon(
-                          Icons.person,
-                          size: 14,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
+                      const Icon(Icons.access_time_outlined, size: 14, color: Colors.grey),
+                      const SizedBox(width: 4),
                       Text(
-                        newsData.author ?? 'Zelixa Editor',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        newsData.createdAt ?? 'Baru',
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 13,
-                        ),
+                        'Sep 24, 2026', // Placeholder date
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    newsData.title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                      height: 1.3,
-                    ),
                   ),
                   const SizedBox(height: 24),
                   const Divider(),
                   const SizedBox(height: 24),
                   HtmlWidget(
-                    newsData.content,
+                    news.contentBody ?? 'No content available.',
                     textStyle: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 16,
                       height: 1.6,
                       color: Colors.black87,
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: Colors.grey.shade200)),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.share_outlined, size: 18),
-                label: const Text('Share Article'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.bookmark_border,
-                  size: 18,
-                  color: Colors.white,
-                ),
-                label: const Text(
-                  'Save News',
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

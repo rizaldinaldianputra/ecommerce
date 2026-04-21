@@ -7,11 +7,11 @@ class HomeTrendingList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final trendingAsync = ref.watch(homeTrendingProvider);
+    final trendingAsync = ref.watch(homeTrendingContentProvider);
 
     return trendingAsync.when(
-      data: (products) {
-        if (products.isEmpty) {
+      data: (items) {
+        if (items.isEmpty) {
           return const SizedBox.shrink();
         }
 
@@ -20,12 +20,14 @@ class HomeTrendingList extends ConsumerWidget {
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
-            itemCount: products.length,
+            itemCount: items.length,
             itemBuilder: (context, index) {
-              final product = products[index];
-              final imageUrl = (product.images != null && product.images!.isNotEmpty)
-                  ? product.images!.first
-                  : (product.imageUrl ?? 'https://picsum.photos/400/200?random=$index');
+              final item = items[index];
+              final product = item.product;
+              
+              final imageUrl = product?.imageUrl ?? item.imageUrl ?? 'https://picsum.photos/400/200?random=$index';
+              final title = item.title ?? product?.name ?? 'Trending Selection';
+              final subtitle = item.subtitle ?? product?.category?.name ?? 'Collection';
 
               return Container(
                 width: 280,
@@ -41,7 +43,7 @@ class HomeTrendingList extends ConsumerWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     gradient: LinearGradient(
-                      colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+                      colors: [Colors.black.withValues(alpha: 0.6), Colors.transparent],
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                     ),
@@ -52,11 +54,11 @@ class HomeTrendingList extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        product.category?.name ?? 'Trending Selection',
+                        subtitle,
                         style: const TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                       Text(
-                        product.name,
+                        title,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,

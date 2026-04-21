@@ -21,7 +21,7 @@ const TYPE_LABELS: Record<string, { label: string; description: string }> = {
   SHOP_THE_LOOK:       { label: 'Shop the Look',          description: 'Grid foto social-style hover produk' },
   BRANDS_SECTION:      { label: 'Brands Section',         description: 'Marquee logo brand partner di web' },
   TESTIMONIALS:        { label: 'Testimonials',           description: 'Grid ulasan pelanggan di homepage' },
-  NEWSLETTER:          { label: 'Newsletter',             description: 'Konfigurasi section newsletter' },
+  NEWSLETTER:          { label: 'Newsletter',             description: 'Item konfigurasi newsletter' },
 };
 
 interface PageProps {

@@ -72,4 +72,19 @@ public class ContentItem {
 
     @Column(name = "display_order")
     private Integer displayOrder;
+
+    @Column(name = "start_date")
+    private java.time.LocalDateTime startDate;
+
+    @Column(name = "end_date")
+    private java.time.LocalDateTime endDate;
+
+    @Column(name = "content_body", columnDefinition = "TEXT")
+    private String contentBody;
+
+    @Column(name = "banner_url", length = 500)
+    private String bannerUrl;
+
+    @Column(name = "product_ids", length = 1000)
+    private String productIds;
 }

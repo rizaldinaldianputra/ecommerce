@@ -1,4 +1,6 @@
 import 'package:go_router/go_router.dart';
+import 'package:zelixa/models/checkout_model.dart';
+import '../models/content_section_model.dart';
 import '../pages/home/main_page.dart';
 import '../pages/auth/login_page.dart';
 import '../pages/checkout/checkout_page.dart';
@@ -11,8 +13,6 @@ import '../pages/home/wishlist_page.dart';
 import '../pages/notification/notification_list_page.dart';
 import '../pages/auth/whatsapp_login_page.dart';
 import '../pages/auth/otp_verification_page.dart';
-import '../models/checkout_model.dart';
-import '../models/news_model.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -50,8 +50,8 @@ class AppRouter {
       GoRoute(
         path: '/news-detail',
         builder: (context, state) {
-          final newsData = state.extra as NewsModel;
-          return NewsDetailPage(newsData: newsData);
+          final newsData = state.extra as ContentItem;
+          return NewsDetailPage(news: newsData);
         },
       ),
       GoRoute(

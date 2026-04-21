@@ -53,7 +53,6 @@ const NAV_GROUPS = [
     items: [
       { name: 'Web Storefront', href: '/admin/content/web', icon: Monitor },
       { name: 'Mobile Content', href: '/admin/content/mobile', icon: Smartphone },
-      { name: 'Notifications', href: '/admin/notifications', icon: Bell },
     ]
   },
   {

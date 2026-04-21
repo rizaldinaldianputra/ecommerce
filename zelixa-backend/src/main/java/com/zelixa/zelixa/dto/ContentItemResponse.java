@@ -26,4 +26,11 @@ public class ContentItemResponse {
     private String emoji;
     private String styleConfig;
     private Integer displayOrder;
+    private java.time.LocalDateTime startDate;
+    private java.time.LocalDateTime endDate;
+    private String contentBody;
+    private String bannerUrl;
+    private String productIds;
+    private java.util.List<ProductResponse> products;
+    private ProductResponse product;
 }

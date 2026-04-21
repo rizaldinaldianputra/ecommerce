@@ -27,14 +27,14 @@ export default async function StorefrontHome() {
     socialItems,
     newsletterItems
   ] = await Promise.all([
-    ContentService.getItemsByType('HERO_CAROUSEL'),
-    ContentService.getItemsByType('FEATURED_PRODUCTS'),
-    ContentService.getItemsByType('FLASH_SALE_WEB'),
-    ContentService.getItemsByType('RECOMMENDED_PRODUCTS'),
-    ContentService.getItemsByType('BRANDS_SECTION'),
-    ContentService.getItemsByType('TESTIMONIALS'),
-    ContentService.getItemsByType('SHOP_THE_LOOK'),
-    ContentService.getItemsByType('NEWSLETTER')
+    ContentService.getPublicItemsByType('HERO_CAROUSEL'),
+    ContentService.getPublicItemsByType('FEATURED_PRODUCTS'),
+    ContentService.getPublicItemsByType('FLASH_SALE_WEB'),
+    ContentService.getPublicItemsByType('RECOMMENDED_PRODUCTS'),
+    ContentService.getPublicItemsByType('BRANDS_SECTION'),
+    ContentService.getPublicItemsByType('TESTIMONIALS'),
+    ContentService.getPublicItemsByType('SHOP_THE_LOOK'),
+    ContentService.getPublicItemsByType('NEWSLETTER')
   ]);
 
   return (

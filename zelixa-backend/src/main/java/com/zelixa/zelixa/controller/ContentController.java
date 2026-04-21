@@ -21,6 +21,12 @@ public class ContentController {
         return ResponseEntity.ok(contentService.createItem(request));
     }
 
+    @GetMapping("/items")
+    public ResponseEntity<List<ContentItemResponse>> getAllItems(
+            @RequestParam(required = false) String platform) {
+        return ResponseEntity.ok(contentService.getAllItems(platform));
+    }
+
     @GetMapping("/items/type/{type}")
     public ResponseEntity<List<ContentItemResponse>> getItemsByType(
             @PathVariable String type,

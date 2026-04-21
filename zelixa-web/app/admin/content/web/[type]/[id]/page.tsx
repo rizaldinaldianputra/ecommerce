@@ -8,7 +8,7 @@ import { Product } from '@/types/product';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Switch } from '@/components/ui/switch';
@@ -26,12 +26,12 @@ const itemSchema = z.object({
   id: z.number().optional(),
   type: z.string().min(1, 'Type is required'),
   platform: z.enum(['WEB', 'MOBILE', 'ALL']),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
   title: z.string().optional().nullable(),
   subtitle: z.string().optional().nullable(),
   imageUrl: z.string().optional().nullable(),
   linkUrl: z.string().optional().nullable(),
-  productId: z.coerce.number().optional().nullable(),
+  productId: z.number().nullable().optional(),
   tag: z.string().optional().nullable(),
   ctaText: z.string().optional().nullable(),
   badgeText: z.string().optional().nullable(),
@@ -143,7 +143,7 @@ const WEB_FIELD_CONFIG: Record<string, TypeConfig> = {
   NEWSLETTER: {
     label: 'Newsletter Config',
     emoji: '📧',
-    description: 'Konfigurasi headline dan deskripsi section newsletter.',
+    description: 'Konfigurasi headline dan deskripsi iklan newsletter.',
     fields: [
       { key: 'title',    label: 'Headline',    placeholder: 'Subscribe to our newsletter' },
       { key: 'subtitle', label: 'Description', placeholder: 'Get latest updates and special offers.' },
@@ -178,7 +178,7 @@ export default function WebContentFormPage({ params }: PageProps) {
   };
 
   const form = useForm<ItemFormValues>({
-    resolver: zodResolver(itemSchema),
+    resolver: zodResolver(itemSchema) as any,
     defaultValues: {
       type: type,
       platform: 'WEB',
@@ -218,7 +218,7 @@ export default function WebContentFormPage({ params }: PageProps) {
     loadData();
   }, [id, isNew]);
 
-  const onSubmit = async (values: ItemFormValues) => {
+  const onSubmit: SubmitHandler<ItemFormValues> = async (values) => {
     setIsLoading(true);
     try {
       // Clean up values to match backend expectations (remove nulls if any)

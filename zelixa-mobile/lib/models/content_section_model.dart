@@ -1,3 +1,5 @@
+import 'product_model.dart';
+
 class ContentItem {
   final int? id;
   final String? platform;
@@ -14,6 +16,13 @@ class ContentItem {
   final int? productId;
   final String? styleConfig;
   final int? displayOrder;
+  final Product? product;
+  final List<Product>? products;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final String? contentBody;
+  final String? bannerUrl;
+  final String? productIds;
 
   ContentItem({
     this.id,
@@ -31,6 +40,13 @@ class ContentItem {
     this.productId,
     this.styleConfig,
     this.displayOrder,
+    this.product,
+    this.products,
+    this.startDate,
+    this.endDate,
+    this.contentBody,
+    this.bannerUrl,
+    this.productIds,
   });
 
   factory ContentItem.fromJson(Map<String, dynamic> json) {
@@ -50,6 +66,15 @@ class ContentItem {
       productId: json['productId'],
       styleConfig: json['styleConfig'],
       displayOrder: json['displayOrder'],
+      product: json['product'] != null ? Product.fromJson(json['product']) : null,
+      products: json['products'] != null 
+          ? (json['products'] as List).map((p) => Product.fromJson(p)).toList() 
+          : null,
+      startDate: json['startDate'] != null ? DateTime.parse(json['startDate']) : null,
+      endDate: json['endDate'] != null ? DateTime.parse(json['endDate']) : null,
+      contentBody: json['contentBody'],
+      bannerUrl: json['bannerUrl'],
+      productIds: json['productIds'],
     );
   }
 }

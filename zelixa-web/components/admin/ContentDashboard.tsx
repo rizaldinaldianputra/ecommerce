@@ -55,7 +55,7 @@ const WEB_CONTENT_TYPES: ContentType[] = [
     lightColor: 'bg-orange-50 text-orange-600 dark:bg-orange-500/10',
     href: '/admin/content/web/FLASH_SALE_WEB',
     addHref: '/admin/content/web/FLASH_SALE_WEB/new',
-    fields: ['Produk', 'Sisa Stok', 'Waktu Berakhir', 'Urutan Tampil'],
+    fields: ['Produk', 'Sisa Stok', 'Waktu Berakhir'],
   },
   {
     title: 'Featured Products',
@@ -66,7 +66,7 @@ const WEB_CONTENT_TYPES: ContentType[] = [
     lightColor: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10',
     href: '/admin/content/web/FEATURED_PRODUCTS',
     addHref: '/admin/content/web/FEATURED_PRODUCTS/new',
-    fields: ['Produk', 'Tab Category', 'Urutan di Grid'],
+    fields: ['Produk', 'Tab Category'],
   },
   {
     title: 'Recommendations',
@@ -77,7 +77,7 @@ const WEB_CONTENT_TYPES: ContentType[] = [
     lightColor: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10',
     href: '/admin/content/web/RECOMMENDED_PRODUCTS',
     addHref: '/admin/content/web/RECOMMENDED_PRODUCTS/new',
-    fields: ['Produk', 'Tag', 'Urutan Scroll'],
+    fields: ['Produk', 'Tag'],
   },
   {
     title: 'Shop the Look',
@@ -91,15 +91,15 @@ const WEB_CONTENT_TYPES: ContentType[] = [
     fields: ['Foto Post', 'Nama Produk', 'Likes Count', 'Link URL'],
   },
   {
-    title: 'Brands Section',
-    description: 'Marquee logo brand partner yang tampil di halaman web.',
+    title: 'Brands',
+    description: 'Daftar logo brand partner yang tampil di halaman web.',
     type: 'BRANDS_SECTION',
     icon: ImageIcon,
     color: 'from-slate-500 to-slate-700',
     lightColor: 'bg-slate-50 text-slate-600 dark:bg-slate-500/10',
     href: '/admin/content/web/BRANDS_SECTION',
     addHref: '/admin/content/web/BRANDS_SECTION/new',
-    fields: ['Nama Brand', 'Logo Image', 'Brand Page Link', 'Order'],
+    fields: ['Nama Brand', 'Logo Image', 'Brand Page Link'],
   },
   {
     title: 'Testimonials',
@@ -114,14 +114,14 @@ const WEB_CONTENT_TYPES: ContentType[] = [
   },
   {
     title: 'Newsletter',
-    description: 'Konfigurasi section newsletter — judul dan deskripsi ajakan berlangganan.',
+    description: 'Konfigurasi iklan newsletter — judul dan deskripsi ajakan berlangganan.',
     type: 'NEWSLETTER',
     icon: Bell,
     color: 'from-cyan-500 to-blue-600',
     lightColor: 'bg-cyan-50 text-cyan-600 dark:bg-cyan-500/10',
     href: '/admin/content/web/NEWSLETTER',
     addHref: '/admin/content/web/NEWSLETTER/new',
-    fields: ['Judul Section', 'Deskripsi'],
+    fields: ['Headline', 'Deskripsi'],
   },
 ];
 
@@ -146,7 +146,7 @@ const MOBILE_CONTENT_TYPES: ContentType[] = [
     lightColor: 'bg-rose-50 text-rose-600 dark:bg-rose-500/10',
     href: '/admin/content/mobile/FLASH_SALE_MOBILE',
     addHref: '/admin/content/mobile/FLASH_SALE_MOBILE/new',
-    fields: ['Produk', 'Badge Diskon', 'Posisi di List'],
+    fields: ['Produk', 'Badge Diskon'],
   },
   {
     title: 'Trending Now',
@@ -168,40 +168,18 @@ const MOBILE_CONTENT_TYPES: ContentType[] = [
     lightColor: 'bg-sky-50 text-sky-600 dark:bg-sky-500/10',
     href: '/admin/content/mobile/FEATURED_MOBILE',
     addHref: '/admin/content/mobile/FEATURED_MOBILE/new',
-    fields: ['Produk', 'Posisi Grid'],
+    fields: ['Produk'],
   },
   {
-    title: 'Why Shop',
-    description: 'Section keunggulan berbelanja — icon + judul + deskripsi singkat untuk mobile.',
-    type: 'WHY_SHOP',
-    icon: Star,
-    color: 'from-yellow-400 to-amber-600',
-    lightColor: 'bg-yellow-50 text-yellow-600 dark:bg-yellow-500/10',
-    href: '/admin/content/mobile/WHY_SHOP',
-    addHref: '/admin/content/mobile/WHY_SHOP/new',
-    fields: ['Emoji/Icon', 'Judul', 'Deskripsi', 'Urutan'],
-  },
-  {
-    title: 'Curated Selections',
-    description: 'Section produk pilihan editorial — Picks for You, dll — di home mobile.',
-    type: 'CURATED_PRODUCTS',
-    icon: Heart,
-    color: 'from-pink-400 to-fuchsia-600',
-    lightColor: 'bg-fuchsia-50 text-fuchsia-600 dark:bg-fuchsia-500/10',
-    href: '/admin/content/mobile/CURATED_PRODUCTS',
-    addHref: '/admin/content/mobile/CURATED_PRODUCTS/new',
-    fields: ['Produk', 'Urutan', 'Badge', 'Tag'],
-  },
-  {
-    title: 'Push Notification',
-    description: 'Kirim notifikasi push ke semua pengguna atau target tertentu di aplikasi mobile.',
-    type: 'NOTIFICATION',
-    icon: MessageSquare,
-    color: 'from-blue-500 to-indigo-600',
-    lightColor: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10',
-    href: '/admin/notifications',
-    addHref: '/admin/notifications/new',
-    fields: ['Judul Notifikasi', 'Isi Pesan', 'Target User', 'Tipe'],
+    title: 'News & Articles',
+    description: 'Berita galeri, update koleksi, atau artikel blog dengan konten HTML rich text.',
+    type: 'NEWS',
+    icon: LayoutTemplate,
+    color: 'from-orange-400 to-amber-500',
+    lightColor: 'bg-orange-50 text-orange-600 dark:bg-orange-500/10',
+    href: '/admin/content/mobile/NEWS',
+    addHref: '/admin/content/mobile/NEWS/new',
+    fields: ['Judul', 'Thumbnail', 'Banner', 'Konten (HTML)'],
   },
 ];
 
@@ -260,7 +238,7 @@ export default function ContentDashboard({ platform, title }: ContentDashboardPr
             <PlatformIcon className="h-8 w-8 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-black uppercase tracking-tight">{config.label} Management</h2>
+            <h2 className="text-2xl font-black uppercase tracking-tight">{config.label} Content Management</h2>
             <p className="text-white/70 font-medium mt-1 text-sm">{config.description}</p>
             <div className="mt-3 flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">

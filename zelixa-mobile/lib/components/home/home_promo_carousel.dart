@@ -139,7 +139,7 @@ class _HomePromoCarouselState extends ConsumerState<HomePromoCarousel> {
              ? DecorationImage(
                 image: NetworkImage(item.imageUrl!),
                 fit: BoxFit.cover,
-                colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.3), BlendMode.darken),
+                colorFilter: ColorFilter.mode(Colors.black.withValues(alpha: 0.3), BlendMode.darken),
                )
              : null,
             gradient: item.imageUrl == null ? LinearGradient(
@@ -157,7 +157,7 @@ class _HomePromoCarouselState extends ConsumerState<HomePromoCarousel> {
                   child: Icon(
                     item.iconName != null ? _getIconData(item.iconName!) : Icons.shopping_bag_outlined,
                     size: 180,
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                   ),
                 ),
               Padding(
@@ -173,7 +173,7 @@ class _HomePromoCarouselState extends ConsumerState<HomePromoCarousel> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(

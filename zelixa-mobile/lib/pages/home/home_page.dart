@@ -8,6 +8,7 @@ import '../../components/home/home_category_icons.dart';
 import '../../components/home/home_flash_sale.dart';
 import '../../components/home/home_trending_list.dart';
 import '../../components/home/home_section_title.dart';
+import '../../components/home/home_news_list.dart';
 import '../../riverpod/home_provider.dart';
 
 class HomePage extends ConsumerWidget {
@@ -15,7 +16,7 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final recommendedAsync = ref.watch(homeRecommendedProvider);
+    final featuredAsync = ref.watch(homeFeaturedContentProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
@@ -59,6 +60,8 @@ class HomePage extends ConsumerWidget {
                     const SizedBox(height: 16),
                     const HomeTrendingList(),
                     const SizedBox(height: 32),
+                    const HomeNewsList(),
+                    const SizedBox(height: 32),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: HomeSectionTitle(title: 'Featured Products'),
@@ -69,10 +72,10 @@ class HomePage extends ConsumerWidget {
               ),
             ),
           ),
-          // Featured products grid
-          recommendedAsync.when(
-            data: (products) {
-              if (products.isEmpty) {
+          // Featured products grid (Content-based)
+          featuredAsync.when(
+            data: (items) {
+              if (items.isEmpty) {
                 return const SliverToBoxAdapter(child: SizedBox.shrink());
               }
               return SliverPadding(
@@ -85,15 +88,19 @@ class HomePage extends ConsumerWidget {
                     childAspectRatio: 0.55,
                   ),
                   delegate: SliverChildBuilderDelegate((context, index) {
-                    final product = products[index];
+                    final item = items[index];
+                    final product = item.product;
+                    
+                    if (product == null) return const SizedBox.shrink();
+
                     final imageUrl = (product.images != null && product.images!.isNotEmpty) 
                         ? product.images!.first 
-                        : (product.imageUrl ?? 'https://picsum.photos/300?random=$index');
+                        : (product.imageUrl ?? item.imageUrl ?? 'https://picsum.photos/300?random=$index');
                         
                     return ProductCard(
                       image: imageUrl,
                       title: product.name,
-                      brand: product.brandId?.toString() ?? 'Zelixa',
+                      brand: 'Zelixa',
                       price: product.price,
                       originalPrice: product.discountPrice != null ? product.price : product.price * 1.2,
                       rating: 4.5,
@@ -106,12 +113,15 @@ class HomePage extends ConsumerWidget {
                         '#F1C40F',
                       ],
                     );
-                  }, childCount: products.length),
+                  }, childCount: items.length),
                 ),
               );
             },
             loading: () => const SliverToBoxAdapter(
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: CircularProgressIndicator(),
+              )),
             ),
             error: (error, _) => const SliverToBoxAdapter(
               child: Center(child: Icon(Icons.error_outline)),

@@ -36,30 +36,22 @@ INSERT INTO voucher (code, discount_amount, min_purchase, valid_until, is_active
 ('FREESHIP', 0.00, 150000.00, '2026-12-31', true, NOW())
 ON CONFLICT (code) DO NOTHING;
 
--- Content Sections
-INSERT INTO content_section (title, type, display_order, is_active)
-SELECT 'Main Hero Banner', 'CAROUSEL', 1, true WHERE NOT EXISTS (SELECT 1 FROM content_section WHERE title = 'Main Hero Banner');
-INSERT INTO content_section (title, type, display_order, is_active)
-SELECT 'Featured Categories', 'GRID', 2, true WHERE NOT EXISTS (SELECT 1 FROM content_section WHERE title = 'Featured Categories');
-INSERT INTO content_section (title, type, display_order, is_active)
-SELECT 'New Arrivals', 'GRID', 3, true WHERE NOT EXISTS (SELECT 1 FROM content_section WHERE title = 'New Arrivals');
-
 -- Content Items
-INSERT INTO content_item (section_id, title, subtitle, image_url, link_url, display_order)
-SELECT (SELECT id FROM content_section WHERE title = 'Main Hero Banner'), 'Summer Sale', 'Get up to 50% off on all summer items!', 'https://example.com/banners/summer-sale.jpg', '/products?sale=summer', 1
-WHERE NOT EXISTS (SELECT 1 FROM content_item WHERE title = 'Summer Sale' AND section_id = (SELECT id FROM content_section WHERE title = 'Main Hero Banner'));
+INSERT INTO content_item (type, platform, title, subtitle, image_url, link_url, display_order, is_active)
+SELECT 'HERO_CAROUSEL', 'WEB', 'Summer Sale', 'Get up to 50% off on all summer items!', 'https://example.com/banners/summer-sale.jpg', '/products?sale=summer', 1, true
+WHERE NOT EXISTS (SELECT 1 FROM content_item WHERE title = 'Summer Sale' AND type = 'HERO_CAROUSEL');
 
-INSERT INTO content_item (section_id, title, subtitle, image_url, link_url, display_order)
-SELECT (SELECT id FROM content_section WHERE title = 'Main Hero Banner'), 'New Collection', 'Explore our latest arrivals', 'https://example.com/banners/new-collection.jpg', '/products?new=true', 2
-WHERE NOT EXISTS (SELECT 1 FROM content_item WHERE title = 'New Collection' AND section_id = (SELECT id FROM content_section WHERE title = 'Main Hero Banner'));
+INSERT INTO content_item (type, platform, title, subtitle, image_url, link_url, display_order, is_active)
+SELECT 'HERO_CAROUSEL', 'WEB', 'New Collection', 'Explore our latest arrivals', 'https://example.com/banners/new-collection.jpg', '/products?new=true', 2, true
+WHERE NOT EXISTS (SELECT 1 FROM content_item WHERE title = 'New Collection' AND type = 'HERO_CAROUSEL');
 
-INSERT INTO content_item (section_id, title, subtitle, image_url, link_url, display_order)
-SELECT (SELECT id FROM content_section WHERE title = 'Featured Categories'), 'Men''s Fashion', 'Explore Men''s style', 'https://example.com/categories/mens.jpg', '/categories/mens', 1
-WHERE NOT EXISTS (SELECT 1 FROM content_item WHERE title = 'Men''s Fashion' AND section_id = (SELECT id FROM content_section WHERE title = 'Featured Categories'));
+INSERT INTO content_item (type, platform, title, subtitle, image_url, link_url, display_order, is_active)
+SELECT 'GRID_FEATURED', 'WEB', 'Men''s Fashion', 'Explore Men''s style', 'https://example.com/categories/mens.jpg', '/categories/mens', 1, true
+WHERE NOT EXISTS (SELECT 1 FROM content_item WHERE title = 'Men''s Fashion' AND type = 'GRID_FEATURED');
 
-INSERT INTO content_item (section_id, title, subtitle, image_url, link_url, display_order)
-SELECT (SELECT id FROM content_section WHERE title = 'Featured Categories'), 'Women''s Fashion', 'Explore Women''s style', 'https://example.com/categories/womens.jpg', '/categories/womens', 2
-WHERE NOT EXISTS (SELECT 1 FROM content_item WHERE title = 'Women''s Fashion' AND section_id = (SELECT id FROM content_section WHERE title = 'Featured Categories'));
+INSERT INTO content_item (type, platform, title, subtitle, image_url, link_url, display_order, is_active)
+SELECT 'GRID_FEATURED', 'WEB', 'Women''s Fashion', 'Explore Women''s style', 'https://example.com/categories/womens.jpg', '/categories/womens', 2, true
+WHERE NOT EXISTS (SELECT 1 FROM content_item WHERE title = 'Women''s Fashion' AND type = 'GRID_FEATURED');
 
 -- News
 INSERT INTO news (title, slug, content, image_url, is_active, published_at) VALUES 

@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import '../models/category_model.dart';
 import 'common_service.dart';
 
