@@ -28,4 +28,17 @@ class ContentService extends CommonService {
       rethrow;
     }
   }
+
+  Future<List<ContentSection>> getSections() async {
+    try {
+      final response = await get('/v1/content/sections?platform=MOBILE');
+      if (response.data != null && response.data is List) {
+        final List<dynamic> list = response.data;
+        return list.map((e) => ContentSection.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

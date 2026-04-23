@@ -65,6 +65,11 @@ app:
   firebase:
     config-path: ${FIREBASE_CONFIG_PATH:firebase-service-account.json}
 
+  waha:
+    url: ${WAHA_URL:http://localhost:3000}
+    session: ${WAHA_SESSION:default}
+    api-key: ${WAHA_API_KEY:}
+
 
 camunda:
   bpm:

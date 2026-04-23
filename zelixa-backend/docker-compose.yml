@@ -21,6 +21,9 @@ services:
       - MINIO_ACCESS_KEY=rizaldi
       - MINIO_SECRET_KEY=15031996
       - MINIO_BUCKET=zelixa
+      - WAHA_URL=http://waha:3000
+      - WAHA_SESSION=default
+      - WAHA_API_KEY=
     networks:
       - infra-network
 

@@ -6,6 +6,8 @@ import com.zelixa.zelixa.dto.ProductResponse;
 import com.zelixa.zelixa.entity.ContentItem;
 import com.zelixa.zelixa.exception.ResourceNotFoundException;
 import com.zelixa.zelixa.repository.ContentItemRepository;
+import com.zelixa.zelixa.repository.ContentSectionRepository;
+import com.zelixa.zelixa.entity.ContentSection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 public class ContentService {
 
     private final ContentItemRepository itemRepository;
+    private final ContentSectionRepository sectionRepository;
     private final ProductService productService;
 
     @Transactional
@@ -45,6 +48,12 @@ public class ContentService {
                 .bannerUrl(request.getBannerUrl())
                 .productIds(request.getProductIds())
                 .build();
+
+        if (request.getSectionId() != null) {
+            ContentSection section = sectionRepository.findById(request.getSectionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Section not found with id: " + request.getSectionId()));
+            item.setSection(section);
+        }
 
         return mapToItemResponse(itemRepository.save(item));
     }
@@ -96,6 +105,12 @@ public class ContentService {
         item.setBannerUrl(request.getBannerUrl());
         item.setProductIds(request.getProductIds());
 
+        if (request.getSectionId() != null) {
+            ContentSection section = sectionRepository.findById(request.getSectionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Section not found with id: " + request.getSectionId()));
+            item.setSection(section);
+        }
+
         return mapToItemResponse(itemRepository.save(item));
     }
 
@@ -113,7 +128,7 @@ public class ContentService {
         return mapToItemResponse(item);
     }
 
-    private ContentItemResponse mapToItemResponse(ContentItem item) {
+    public ContentItemResponse mapToItemResponse(ContentItem item) {
         ProductResponse product = null;
         if (item.getProductId() != null) {
             try {
@@ -158,6 +173,7 @@ public class ContentService {
                 .contentBody(item.getContentBody())
                 .bannerUrl(item.getBannerUrl())
                 .productIds(item.getProductIds())
+                .sectionId(item.getSection() != null ? item.getSection().getId() : null)
                 .products(products)
                 .product(product)
                 .build();

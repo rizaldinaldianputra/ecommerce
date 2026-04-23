@@ -55,6 +55,7 @@ const itemSchema = z.object({
   contentBody: z.string().optional().nullable(),
   bannerUrl: z.string().optional().nullable(),
   productIds: z.string().optional().nullable(),
+  sectionId: z.number().optional().nullable(),
 });
 
 type ItemFormValues = z.infer<typeof itemSchema>;
@@ -156,6 +157,7 @@ export default function ContentItemForm({ id }: ContentItemFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+  const [sections, setSections] = useState<any[]>([]);
   const isNew = !id || id === 'new';
 
   const form = useForm<ItemFormValues>({
@@ -181,8 +183,11 @@ export default function ContentItemForm({ id }: ContentItemFormProps) {
       contentBody: '',
       bannerUrl: '',
       productIds: '',
+      sectionId: undefined,
     },
   });
+
+  const selectedPlatform = form.watch('platform');
 
   const selectedType = form.watch('type');
   const typeConfig = ALL_TYPE_CONFIGS[selectedType] || {
@@ -218,6 +223,18 @@ export default function ContentItemForm({ id }: ContentItemFormProps) {
     };
     loadData();
   }, [id, isNew]);
+
+  useEffect(() => {
+    const fetchSections = async () => {
+      try {
+        const data = await ContentService.getSections(selectedPlatform);
+        setSections(data);
+      } catch (error) {
+        console.error('Failed to fetch sections:', error);
+      }
+    };
+    fetchSections();
+  }, [selectedPlatform]);
 
   const onSubmit: SubmitHandler<ItemFormValues> = async (values) => {
     setIsLoading(true);
@@ -337,6 +354,41 @@ export default function ContentItemForm({ id }: ContentItemFormProps) {
                               <div className="flex flex-col">
                                 <span className="font-bold text-xs uppercase tracking-tight">{config.label}</span>
                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest font-black">{config.platform} · {key}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Section Selection */}
+              <div className="mt-8">
+                <FormField
+                  control={form.control}
+                  name="sectionId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400">Section (Grup)</FormLabel>
+                      <Select 
+                        onValueChange={(val) => field.onChange(val === 'none' ? null : parseInt(val))} 
+                        value={field.value?.toString() || 'none'}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="rounded-2xl h-12 border-none bg-slate-100 dark:bg-white/5 font-bold">
+                            <SelectValue placeholder="Pilih Section" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="rounded-2xl border-white/20 backdrop-blur-xl max-h-[300px]">
+                          <SelectItem value="none" className="rounded-xl font-bold">-- Tanpa Section (Flat) --</SelectItem>
+                          {sections.map((section) => (
+                            <SelectItem key={section.id} value={section.id.toString()} className="rounded-xl">
+                              <div className="flex flex-col">
+                                <span className="font-bold text-xs uppercase tracking-tight">{section.title || section.type}</span>
+                                <span className="text-[8px] text-slate-400 uppercase tracking-widest font-black">{section.type}</span>
                               </div>
                             </SelectItem>
                           ))}

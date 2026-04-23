@@ -64,6 +64,34 @@ class ContentServiceClass {
   async deleteItem(id: number): Promise<void> {
     await apiClient.delete(`/v1/content/items/${id}`);
   }
+  
+  // --- SECTION METHODS ---
+
+  async getSections(platform: string = 'WEB'): Promise<any[]> {
+    const response = await apiClient.get<any[]>('/v1/content/sections', {
+      params: { platform }
+    });
+    return response ?? [];
+  }
+
+  async getSectionById(id: number | string): Promise<any> {
+    const response = await apiClient.get<any>(`/v1/content/sections/${id}`);
+    return response;
+  }
+
+  async createSection(section: any): Promise<any> {
+    const response = await apiClient.post<any>('/v1/content/sections', section);
+    return response;
+  }
+
+  async updateSection(id: number | string, section: any): Promise<any> {
+    const response = await apiClient.put<any>(`/v1/content/sections/${id}`, section);
+    return response;
+  }
+
+  async deleteSection(id: number | string): Promise<void> {
+    await apiClient.delete(`/v1/content/sections/${id}`);
+  }
 
   // --- LEGACY COMPATIBILITY METHODS (For Banner/Section Pages) ---
 
@@ -88,4 +116,14 @@ class ContentServiceClass {
 }
 
 export const ContentService = new ContentServiceClass();
-export type ContentSection = any; // Alias for legacy type support
+
+export interface ContentSection {
+  id?: number;
+  platform: 'WEB' | 'MOBILE' | 'ALL';
+  type: string;
+  title?: string;
+  subtitle?: string;
+  displayOrder: number;
+  isActive: boolean;
+  items?: ContentItem[];
+}

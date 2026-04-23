@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 @Table(name = "content_item")
@@ -13,6 +15,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ContentItem {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "section_id")
+    @JsonIgnore
+    private ContentSection section;
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

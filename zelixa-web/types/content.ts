@@ -15,6 +15,7 @@ export interface ContentItem {
   styleConfig?: string;
   displayOrder?: number;
   isActive?: boolean;
+  sectionId?: number;
   createdAt?: string;
 }
 

@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ContentItemRequest {
     private String type;
+    private Long sectionId;
+
     private String platform;
     private Boolean isActive;
     private String title;

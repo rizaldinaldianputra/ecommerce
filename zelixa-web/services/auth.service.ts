@@ -119,11 +119,11 @@ export const authService = {
   },
 
   requestOtp: async (phoneNumber: string): Promise<void> => {
-    await apiClient.post(`/v1/auth/otp/request?phoneNumber=${encodeURIComponent(phoneNumber)}`, {});
+    await apiClient.post('/v1/auth/otp/request', { phoneNumber });
   },
 
   loginWithOtp: async (phoneNumber: string, code: string): Promise<AuthUser> => {
-    const response = await apiClient.post<any>(`/v1/auth/otp/login?phoneNumber=${encodeURIComponent(phoneNumber)}&code=${encodeURIComponent(code)}`, {});
+    const response = await apiClient.post<any>('/v1/auth/otp/login', { phoneNumber, code });
     const data = response.data;
 
     if (data.token) {

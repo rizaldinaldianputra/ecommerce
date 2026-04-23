@@ -23,6 +23,7 @@ class ContentItem {
   final String? contentBody;
   final String? bannerUrl;
   final String? productIds;
+  final int? sectionId;
 
   ContentItem({
     this.id,
@@ -47,6 +48,8 @@ class ContentItem {
     this.contentBody,
     this.bannerUrl,
     this.productIds,
+    this.sectionId,
+
   });
 
   factory ContentItem.fromJson(Map<String, dynamic> json) {
@@ -75,6 +78,7 @@ class ContentItem {
       contentBody: json['contentBody'],
       bannerUrl: json['bannerUrl'],
       productIds: json['productIds'],
+      sectionId: json['sectionId'],
     );
   }
 }
