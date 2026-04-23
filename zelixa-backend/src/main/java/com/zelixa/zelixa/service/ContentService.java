@@ -9,6 +9,7 @@ import com.zelixa.zelixa.repository.ContentItemRepository;
 import com.zelixa.zelixa.repository.ContentSectionRepository;
 import com.zelixa.zelixa.entity.ContentSection;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,9 @@ public class ContentService {
     private final ContentItemRepository itemRepository;
     private final ContentSectionRepository sectionRepository;
     private final ProductService productService;
+
+    @Value("${app.minio.url:https://storage.zelixa.my.id}")
+    private String storageUrl;
 
     @Transactional
     public ContentItemResponse createItem(ContentItemRequest request) {
@@ -158,7 +162,7 @@ public class ContentService {
                 .isActive(item.getIsActive())
                 .title(item.getTitle())
                 .subtitle(item.getSubtitle())
-                .imageUrl(item.getImageUrl())
+                .imageUrl(formatImageUrl(item.getImageUrl()))
                 .linkUrl(item.getLinkUrl())
                 .productId(item.getProductId())
                 .tag(item.getTag())
@@ -171,11 +175,39 @@ public class ContentService {
                 .startDate(item.getStartDate())
                 .endDate(item.getEndDate())
                 .contentBody(item.getContentBody())
-                .bannerUrl(item.getBannerUrl())
+                .bannerUrl(formatImageUrl(item.getBannerUrl()))
                 .productIds(item.getProductIds())
                 .sectionId(item.getSection() != null ? item.getSection().getId() : null)
                 .products(products)
                 .product(product)
                 .build();
+    }
+
+    private String formatImageUrl(String path) {
+        if (path == null || path.trim().isEmpty() || path.startsWith("http") || path.startsWith("data:")) {
+            return path;
+        }
+
+        // Clean up internal endpoints if they somehow got into the DB
+        String cleanPath = path;
+        String[] internalEndpoints = {"minio:9000", "localhost:9000", "127.0.0.1:9000"};
+        for (String endpoint : internalEndpoints) {
+            if (cleanPath.contains(endpoint)) {
+                cleanPath = cleanPath.substring(cleanPath.indexOf(endpoint) + endpoint.length());
+            }
+        }
+
+        // Ensure it starts with a single slash
+        if (!cleanPath.startsWith("/")) {
+            cleanPath = "/" + cleanPath;
+        }
+
+        // Clean storage URL
+        String base = storageUrl;
+        if (base.endsWith("/")) {
+            base = base.substring(0, base.length() - 1);
+        }
+
+        return base + cleanPath;
     }
 }
