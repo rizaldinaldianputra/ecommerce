@@ -16,119 +16,152 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final featuredAsync = ref.watch(homeFeaturedContentProvider);
+    final sectionsAsync = ref.watch(homeSectionsProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
-      body: CustomScrollView(
-        slivers: [
-          const HomeSliverAppBar(),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: HomeSearchBar(),
-                    ),
-                    const SizedBox(height: 24),
-                    const HomePromoCarousel(),
-                    const SizedBox(height: 32),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: HomeCategoryIcons(),
-                    ),
-                    const SizedBox(height: 32),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: HomeSectionTitle(
-                        title: 'Flash Sale',
-                        hasTimer: true,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const HomeFlashSale(),
-                    const SizedBox(height: 32),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: HomeSectionTitle(title: 'Trending Now'),
-                    ),
-                    const SizedBox(height: 16),
-                    const HomeTrendingList(),
-                    const SizedBox(height: 32),
-                    const HomeNewsList(),
-                    const SizedBox(height: 32),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: HomeSectionTitle(title: 'Featured Products'),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+      body: sectionsAsync.when(
+        data: (sections) {
+          final activeSections = sections.where((s) => s.isActive).toList();
+          
+          return CustomScrollView(
+            slivers: [
+              const HomeSliverAppBar(),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                  child: Column(
+                    children: const [
+                      HomeSearchBar(),
+                      SizedBox(height: 24),
+                      HomeCategoryIcons(),
+                      SizedBox(height: 32),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ),
-          // Featured products grid (Content-based)
-          featuredAsync.when(
-            data: (items) {
-              if (items.isEmpty) {
-                return const SliverToBoxAdapter(child: SizedBox.shrink());
-              }
-              return SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: 0.55,
-                  ),
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final item = items[index];
-                    final product = item.product;
-                    
-                    if (product == null) return const SizedBox.shrink();
+              
+              // Dynamic Sections Rendering
+              ...activeSections.map((section) {
+                if (section.items.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
 
-                    final imageUrl = (product.images != null && product.images!.isNotEmpty) 
-                        ? product.images!.first 
-                        : (product.imageUrl ?? item.imageUrl ?? 'https://picsum.photos/300?random=$index');
-                        
-                    return ProductCard(
-                      image: imageUrl,
-                      title: product.name,
-                      brand: 'Zelixa',
-                      price: product.price,
-                      originalPrice: product.discountPrice != null ? product.price : product.price * 1.2,
-                      rating: 4.5,
-                      description: product.shortDescription ?? product.description,
-                      sizes: const ['S', 'M', 'L', 'XL'],
-                      colorHexes: const [
-                        '#FF5733',
-                        '#33FF57',
-                        '#3357FF',
-                        '#F1C40F',
-                      ],
+                switch (section.type) {
+                  case 'MOBILE_PROMO':
+                    return SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 32),
+                        child: HomePromoCarousel(), // Note: Ideally this would take items from section.items
+                      ),
                     );
-                  }, childCount: items.length),
-                ),
-              );
-            },
-            loading: () => const SliverToBoxAdapter(
-              child: Center(child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: CircularProgressIndicator(),
-              )),
-            ),
-            error: (error, _) => const SliverToBoxAdapter(
-              child: Center(child: Icon(Icons.error_outline)),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 120)),
-        ],
+                  
+                  case 'FLASH_SALE_MOBILE':
+                    return SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 32),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: HomeSectionTitle(
+                                title: section.title ?? 'Flash Sale',
+                                hasTimer: true,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            const HomeFlashSale(),
+                          ],
+                        ),
+                      ),
+                    );
+
+                  case 'TRENDING_LIST':
+                    return SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 32),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: HomeSectionTitle(title: section.title ?? 'Trending Now'),
+                            ),
+                            const SizedBox(height: 16),
+                            const HomeTrendingList(),
+                          ],
+                        ),
+                      ),
+                    );
+
+                  case 'NEWS':
+                    return SliverToBoxAdapter(
+                      child: const Padding(
+                        padding: EdgeInsets.only(bottom: 32),
+                        child: HomeNewsList(),
+                      ),
+                    );
+
+                  case 'FEATURED_MOBILE':
+                    return SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverMainAxisGroup(
+                        slivers: [
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: HomeSectionTitle(title: section.title ?? 'Featured Products'),
+                            ),
+                          ),
+                          SliverGrid(
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                              childAspectRatio: 0.55,
+                            ),
+                            delegate: SliverChildBuilderDelegate((context, index) {
+                              final item = section.items[index];
+                              final product = item.product;
+                              
+                              if (product == null) return const SizedBox.shrink();
+
+                              final imageUrl = (product.images != null && product.images!.isNotEmpty) 
+                                  ? product.images!.first 
+                                  : (product.imageUrl ?? item.imageUrl ?? 'https://picsum.photos/300?random=$index');
+                                  
+                              return ProductCard(
+                                image: imageUrl,
+                                title: product.name,
+                                brand: 'Zelixa',
+                                price: product.price,
+                                originalPrice: product.discountPrice != null ? product.price : product.price * 1.2,
+                                rating: 4.5,
+                                description: product.shortDescription ?? product.description,
+                                sizes: const ['S', 'M', 'L', 'XL'],
+                                colorHexes: const [
+                                  '#FF5733',
+                                  '#33FF57',
+                                  '#3357FF',
+                                  '#F1C40F',
+                                ],
+                              );
+                            }, childCount: section.items.length),
+                          ),
+                        ],
+                      ),
+                    );
+
+                  default:
+                    return const SliverToBoxAdapter(child: SizedBox.shrink());
+                }
+              }).toList(),
+
+              const SliverToBoxAdapter(child: SizedBox(height: 120)),
+            ],
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(child: Text('Error: $error')),
       ),
     );
   }

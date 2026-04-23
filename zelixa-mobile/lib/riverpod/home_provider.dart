@@ -12,6 +12,11 @@ final categoryServiceProvider = Provider<CategoryService>((ref) {
   return CategoryService();
 });
 
+// Sections Provider (Grouped Content)
+final homeSectionsProvider = FutureProvider<List<ContentSection>>((ref) async {
+  final service = ref.read(contentServiceProvider);
+  return service.getSections();
+});
 
 // Promo Banners Provider (Content Items)
 final homePromoBannersProvider = FutureProvider<List<ContentItem>>((ref) async {
